@@ -18,6 +18,11 @@ public class ReviewAndRatingBuilder {
         return this;
     }
 
+    public ReviewAndRatingBuilder setInstance(ReviewAndRating reviewAndRating){
+        this.reviewAndRating = reviewAndRating;
+        return this;
+    }
+
     public ReviewAndRatingBuilder addId() {
         reviewAndRating.setId(UUID.randomUUID());
         return this;
