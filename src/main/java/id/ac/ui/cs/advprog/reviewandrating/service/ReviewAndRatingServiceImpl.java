@@ -57,7 +57,18 @@ public class ReviewAndRatingServiceImpl implements ReviewAndRatingService {
         return modifiedReviewAndRating;
 
     }
-    public ReviewAndRating delete(String listingId){
-        return null;
+    public ReviewAndRating delete(String id, String listingId){
+        Reviewable reviewable = reviewableService.getReviewable(listingId);
+        if (reviewable == null)
+            return null;
+
+        ReviewAndRating reviewAndRating = reviewAndRatingRepo.delete(id);
+        if (reviewAndRating == null)
+            return null;
+
+        reviewable.getReviews().remove(reviewAndRating.getWriter());
+        reviewableRepo.put(reviewable);
+
+        return reviewAndRating;
     }
 }
