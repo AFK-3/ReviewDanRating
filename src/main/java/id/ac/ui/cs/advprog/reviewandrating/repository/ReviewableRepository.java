@@ -11,7 +11,7 @@ import java.util.Map;
 public class ReviewableRepository {
     private Map<String, Reviewable> reviewableMap = new HashMap<>();
 
-    public Reviewable put(Reviewable reviewable) {
+    public Reviewable save(Reviewable reviewable) {
         reviewableMap.put(reviewable.getListingId().toString(), reviewable);
         return reviewable;
     }

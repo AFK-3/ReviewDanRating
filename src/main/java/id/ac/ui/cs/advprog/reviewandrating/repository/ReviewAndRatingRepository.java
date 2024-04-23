@@ -11,7 +11,7 @@ import java.util.Map;
 public class ReviewAndRatingRepository {
     private final Map<String, ReviewAndRating> reviewMap = new HashMap<>();
 
-    public ReviewAndRating put(ReviewAndRating reviewAndRating) {
+    public ReviewAndRating save(ReviewAndRating reviewAndRating) {
         reviewMap.put(reviewAndRating.getId().toString(), reviewAndRating);
         return reviewAndRating;
     }
