@@ -2,21 +2,27 @@ package id.ac.ui.cs.advprog.reviewandrating.service.command;
 
 import id.ac.ui.cs.advprog.reviewandrating.model.Reviewable;
 import id.ac.ui.cs.advprog.reviewandrating.model.builder.ReviewableBuilder;
+import id.ac.ui.cs.advprog.reviewandrating.repository.ListingDummyRepository;
 import id.ac.ui.cs.advprog.reviewandrating.repository.ReviewableRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
-import java.util.UUID;
+
+@Component
 
 public class CreateReviewableCommand implements ReviewableCommand{
     private ReviewableRepository reviewableRepository;
     private ReviewableBuilder reviewableBuilder = new ReviewableBuilder();
 
-    public CreateReviewableCommand(ReviewableRepository reviewableRepository) {
+    private ListingDummyRepository listingDummyRepo;
+
+    public CreateReviewableCommand(ReviewableRepository reviewableRepository, ListingDummyRepository listingDummyRepo) {
+        this.listingDummyRepo = listingDummyRepo;
         this.reviewableRepository = reviewableRepository;
     }
     public Reviewable execute(String listingId) {
-        boolean isListingExist = listingId.equals("1");
-        if (!isListingExist) {
+        if (listingDummyRepo.findById(listingId) == null) {
             reviewableRepository.delete(listingId);
             throw new IllegalArgumentException("Listing doesn't exist");
         }
@@ -26,7 +32,7 @@ public class CreateReviewableCommand implements ReviewableCommand{
         }
 
         Reviewable reviewable = reviewableBuilder.reset()
-                .addListingId(UUID.fromString(listingId))
+                .addListingId(listingId)
                 .addReviews(new HashMap<>())
                 .build();
         reviewableRepository.save(reviewable);

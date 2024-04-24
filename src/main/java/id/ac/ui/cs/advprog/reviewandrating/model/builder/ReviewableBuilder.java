@@ -4,9 +4,7 @@ import id.ac.ui.cs.advprog.reviewandrating.model.ReviewAndRating;
 import id.ac.ui.cs.advprog.reviewandrating.model.Reviewable;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 @Component
 public class ReviewableBuilder {
@@ -21,7 +19,7 @@ public class ReviewableBuilder {
         return this;
     }
 
-    public ReviewableBuilder addListingId(UUID listingId){
+    public ReviewableBuilder addListingId(String listingId){
         reviewable.setListingId(listingId);
         return this;
     }
