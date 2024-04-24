@@ -11,6 +11,8 @@ import id.ac.ui.cs.advprog.reviewandrating.service.command.GetReviewableCommand;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class ReviewAndRatingServiceImpl implements ReviewAndRatingService {
     private final ReviewAndRatingRepository reviewAndRatingRepo;
@@ -40,7 +42,10 @@ public class ReviewAndRatingServiceImpl implements ReviewAndRatingService {
             reviewableInvoker.setCommand(createReviewable);
             reviewable = reviewableInvoker.executeCommand(listingId);
         }
-        if (reviewable.getReviews().containsKey(username)) {
+        else if (!reviewable.getReviews().containsKey(username)) {
+            throw new IllegalArgumentException("User doesn't have permission to review on this listing");
+        }
+        else if (reviewable.getReviews().get(username) != null) {
             throw new IllegalArgumentException("User already created review on this listing");
         }
 
@@ -63,7 +68,7 @@ public class ReviewAndRatingServiceImpl implements ReviewAndRatingService {
         reviewableInvoker.setCommand(getReviewable);
         Reviewable reviewable = reviewableInvoker.executeCommand(listingId);
 
-        return reviewable != null || reviewable.getReviews().containsKey(username);
+        return reviewable != null && reviewable.getReviews().get(username) != null;
     }
     public ReviewAndRating update(String listingId, ReviewAndRating modifiedReviewAndRating){
         reviewableInvoker.setCommand(getReviewable);
@@ -80,33 +85,21 @@ public class ReviewAndRatingServiceImpl implements ReviewAndRatingService {
         reviewableInvoker.setCommand(getReviewable);
         Reviewable reviewable = reviewableInvoker.executeCommand(listingId);
 
+        if (isAlreadyReview(listingId, reviewAndRatingRepo.findById(listingId).getWriter())) {
+            throw new IllegalArgumentException("You don't have review on this listing");
+        }
+
         ReviewAndRating reviewAndRating = reviewAndRatingRepo.delete(id);
         reviewable.getReviews().remove(reviewAndRating.getWriter());
 
         return reviewAndRating;
     }
 
-    public Reviewable deleteReviewable(String listingId) {
-        reviewableInvoker.setCommand(deleteReviewable);
-        Reviewable reviewable = reviewableInvoker.executeCommand(listingId);
-        for (ReviewAndRating review : reviewable.getReviews().values()) {
-            delete(review.getId().toString(), listingId);
-        }
-
-        return reviewable;
-    }
-
-    public Double getAverageRating(String listingId) {
+    public void allowUserToReview(String username, String listingId) {
         reviewableInvoker.setCommand(getReviewable);
         Reviewable reviewable = reviewableInvoker.executeCommand(listingId);
-
-        double average = 0;
-        int counter = 0;
-        for (ReviewAndRating review : reviewable.getReviews().values()) {
-            average += review.getRating();
-            counter++;
+        if (!reviewable.getReviews().containsKey(username)) {
+            reviewable.getReviews().put(username, null);
         }
-
-        return counter != 0? average/counter : 0;
     }
 }
