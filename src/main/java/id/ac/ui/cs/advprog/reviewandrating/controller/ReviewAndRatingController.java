@@ -1,13 +1,15 @@
 package id.ac.ui.cs.advprog.reviewandrating.controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import id.ac.ui.cs.advprog.reviewandrating.model.ReviewAndRating;
 import id.ac.ui.cs.advprog.reviewandrating.service.ReviewAndRatingService;
 import id.ac.ui.cs.advprog.reviewandrating.service.ReviewByListingService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 import java.util.List;
@@ -46,13 +48,16 @@ public class ReviewAndRatingController {
 
     @PostMapping("/createReview/{listingId}")
     public ResponseEntity<String> createReview(@PathVariable("listingId") String listingId,
-                                               @RequestHeader("Authorization") String username,
+                                               @RequestHeader("Authorization") String token,
                                                @RequestBody ReviewAndRating reviewAndRating) {
+
         try {
-            reviewAndRatingService.create(listingId, username,
+            HashMap<String, String> user = getUserFromAuth(token);
+            reviewAndRatingService.create(listingId, user.get("username"),
                     reviewAndRating.getReview(), reviewAndRating.getRating());
 
-            return ResponseEntity.ok("Review Successfully Added to listing");
+            return ResponseEntity.ok(String.format("Review by %s Successfully Added to listing",
+                    user.get("username")));
         }
         catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
@@ -60,14 +65,14 @@ public class ReviewAndRatingController {
     }
 
     @PostMapping("/allowUserToReview")
-    public ResponseEntity<String> allowUserToReview(@RequestHeader("Authorization") String username,
+    public ResponseEntity<String> allowUserToReview(@RequestHeader("Authorization") String token,
                                                     @RequestBody Map<String, String> map) {
 
-        if (!username.equals("admin")) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Non admin can't allow user to review");
-        }
-
         try {
+            HashMap<String, String> user = getUserFromAuth(token);
+            if (!user.get("type").equals("STAFF")) {
+                throw new Exception("Non STAFF can't allow user to review");
+            }
             reviewAndRatingService.allowUserToReview(map.get("username"), map.get("listingId"));
 
             return ResponseEntity.ok(String.format("Allow %s to review listing with id %s",
@@ -80,10 +85,11 @@ public class ReviewAndRatingController {
 
     @PutMapping("/updateReview/{listingId}")
     public ResponseEntity<String> updateReview(@PathVariable("listingId") String listingId,
-                                               @RequestHeader("Authorization") String username,
+                                               @RequestHeader("Authorization") String token,
                                                @RequestBody ReviewAndRating reviewAndRating) {
         try {
-            reviewAndRatingService.update(listingId, username, reviewAndRating);
+            HashMap<String, String> user = getUserFromAuth(token);
+            reviewAndRatingService.update(listingId, user.get("username"), reviewAndRating);
 
             return ResponseEntity.ok("Review Successfully modified");
         }
@@ -94,13 +100,26 @@ public class ReviewAndRatingController {
 
     @DeleteMapping("/deleteReview/{listingId}")
     public ResponseEntity<String> deleteReview (@PathVariable("listingId") String listingId,
-                                                @RequestHeader("Authorization") String username) {
+                                                @RequestHeader("Authorization") String token) {
         try {
-            reviewAndRatingService.delete(listingId, username);
+            HashMap<String, String> user = getUserFromAuth(token);
+            reviewAndRatingService.delete(listingId, user.get("username"));
             return ResponseEntity.ok("Review Successfully Deleted");
         }
         catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
+    }
+
+    private HashMap<String, String> getUserFromAuth(String token) throws Exception{
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + token);
+        HttpEntity<String> httpEntity = new HttpEntity<>("body", headers);
+        ResponseEntity<String> response = restTemplate.exchange("http://localhost:8080/api/auth/get-user", HttpMethod.GET, httpEntity, String.class);
+
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        return objectMapper.readValue(response.getBody(), new TypeReference<HashMap<String, String>>() {});
     }
 }
