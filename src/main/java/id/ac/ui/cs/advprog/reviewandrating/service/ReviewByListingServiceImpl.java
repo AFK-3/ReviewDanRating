@@ -39,9 +39,9 @@ public class ReviewByListingServiceImpl implements ReviewByListingService{
         this.deleteReviewable = new DeleteReviewableCommand(reviewableRepo, listingDummyRepo);
     }
 
-    public List<ReviewAndRating> deleteAllReviewInListing(String listingId) {
+    public List<ReviewAndRating> deleteAllReviewInListing(String listingId, String token) {
         reviewableInvoker.setCommand(deleteReviewable);
-        Reviewable reviewable = reviewableInvoker.executeCommand(listingId);
+        Reviewable reviewable = reviewableInvoker.executeCommand(listingId, token);
         for (ReviewAndRating review : reviewable.getReviews().values()) {
             reviewAndRatingRepo.delete(review.getId().toString());
         }
@@ -49,13 +49,13 @@ public class ReviewByListingServiceImpl implements ReviewByListingService{
         return reviewable.getReviews().values().stream().toList();
     }
 
-    public Double getAverageRating(String listingId) {
+    public Double getAverageRating(String listingId, String token) {
         reviewableInvoker.setCommand(getReviewable);
-        Reviewable reviewable = reviewableInvoker.executeCommand(listingId);
+        Reviewable reviewable = reviewableInvoker.executeCommand(listingId, token);
 
         if (reviewable == null) {
             reviewableInvoker.setCommand(createReviewable);
-            reviewable = reviewableInvoker.executeCommand(listingId);
+            reviewable = reviewableInvoker.executeCommand(listingId, token);
         }
 
         double average = 0;
@@ -69,12 +69,12 @@ public class ReviewByListingServiceImpl implements ReviewByListingService{
         return counter != 0? average/counter : 0;
     }
 
-    public List<ReviewAndRating> getReviewByListing(String listingId) {
+    public List<ReviewAndRating> getReviewByListing(String listingId, String token) {
         reviewableInvoker.setCommand(getReviewable);
-        Reviewable reviewable = reviewableInvoker.executeCommand(listingId);
+        Reviewable reviewable = reviewableInvoker.executeCommand(listingId, token);
         if (reviewable == null) {
             reviewableInvoker.setCommand(createReviewable);
-            reviewable = reviewableInvoker.executeCommand(listingId);
+            reviewable = reviewableInvoker.executeCommand(listingId, token);
         }
         List<ReviewAndRating> reviews = new ArrayList<>();
         for (ReviewAndRating review : reviewable.getReviews().values()) {

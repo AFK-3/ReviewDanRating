@@ -37,12 +37,12 @@ public class ReviewAndRatingServiceImpl implements ReviewAndRatingService {
         this.getReviewable = new GetReviewableCommand(reviewableRepo, listingDummyRepo);
         this.createReviewable = new CreateReviewableCommand(reviewableRepo, listingDummyRepo);
     }
-    public ReviewAndRating create(String listingId, String username, String review, int rating){
+    public ReviewAndRating create(String listingId, String username, String review, int rating, String token){
         reviewableInvoker.setCommand(getReviewable);
-        Reviewable reviewable = reviewableInvoker.executeCommand(listingId);
+        Reviewable reviewable = reviewableInvoker.executeCommand(listingId, token);
         if (reviewable == null) {
             reviewableInvoker.setCommand(createReviewable);
-            reviewable = reviewableInvoker.executeCommand(listingId);
+            reviewable = reviewableInvoker.executeCommand(listingId, token);
         }
 
         if (!reviewable.getReviews().containsKey(username)) {
@@ -67,16 +67,16 @@ public class ReviewAndRatingServiceImpl implements ReviewAndRatingService {
         return reviewAndRatingRepo.findById(id);
     }
 
-    public boolean isAlreadyReview(String listingId, String username) {
+    public boolean isAlreadyReview(String listingId, String username, String token) {
         reviewableInvoker.setCommand(getReviewable);
-        Reviewable reviewable = reviewableInvoker.executeCommand(listingId);
+        Reviewable reviewable = reviewableInvoker.executeCommand(listingId, token);
 
         return reviewable == null || reviewable.getReviews().get(username) == null;
     }
-    public ReviewAndRating update(String listingId, String username, ReviewAndRating modifiedReviewAndRating){
+    public ReviewAndRating update(String listingId, String username, ReviewAndRating modifiedReviewAndRating, String token){
         reviewableInvoker.setCommand(getReviewable);
-        Reviewable reviewable = reviewableInvoker.executeCommand(listingId);
-        if (isAlreadyReview(listingId, username)) {
+        Reviewable reviewable = reviewableInvoker.executeCommand(listingId, token);
+        if (isAlreadyReview(listingId, username, token)) {
             throw new IllegalArgumentException("You don't have review on this listing");
         }
 
@@ -85,11 +85,11 @@ public class ReviewAndRatingServiceImpl implements ReviewAndRatingService {
         actualReview.setRating(modifiedReviewAndRating.getRating());
         return modifiedReviewAndRating;
     }
-    public ReviewAndRating delete(String listingId, String username){
+    public ReviewAndRating delete(String listingId, String username, String token){
         reviewableInvoker.setCommand(getReviewable);
-        Reviewable reviewable = reviewableInvoker.executeCommand(listingId);
+        Reviewable reviewable = reviewableInvoker.executeCommand(listingId, token);
 
-        if (isAlreadyReview(listingId, username)) {
+        if (isAlreadyReview(listingId, username, token)) {
             throw new IllegalArgumentException("You don't have review on this listing");
         }
 
@@ -99,12 +99,12 @@ public class ReviewAndRatingServiceImpl implements ReviewAndRatingService {
         return reviewAndRating;
     }
 
-    public void allowUserToReview(String username, String listingId) {
+    public void allowUserToReview(String username, String listingId, String token) {
         reviewableInvoker.setCommand(getReviewable);
-        Reviewable reviewable = reviewableInvoker.executeCommand(listingId);
+        Reviewable reviewable = reviewableInvoker.executeCommand(listingId, token);
         if (reviewable == null) {
             reviewableInvoker.setCommand(createReviewable);
-            reviewable = reviewableInvoker.executeCommand(listingId);
+            reviewable = reviewableInvoker.executeCommand(listingId, token);
         }
         if (!reviewable.getReviews().containsKey(username)) {
             reviewable.getReviews().put(username, null);

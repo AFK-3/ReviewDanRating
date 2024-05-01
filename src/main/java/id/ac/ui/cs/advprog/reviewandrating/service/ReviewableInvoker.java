@@ -12,11 +12,11 @@ public class ReviewableInvoker {
         this.reviewableCommand = reviewableCommand;
     }
 
-    public Reviewable executeCommand(String listingId) {
+    public Reviewable executeCommand(String listingId, String token) {
         if (reviewableCommand == null) {
             throw new NullPointerException("Command not set");
         }
 
-        return reviewableCommand.execute(listingId);
+        return reviewableCommand.execute(listingId, token);
     }
 }
