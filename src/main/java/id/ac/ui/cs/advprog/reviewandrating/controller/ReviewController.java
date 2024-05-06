@@ -1,42 +1,42 @@
 package id.ac.ui.cs.advprog.reviewandrating.controller;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import id.ac.ui.cs.advprog.reviewandrating.model.ReviewAndRating;
-import id.ac.ui.cs.advprog.reviewandrating.service.ReviewAndRatingService;
-import id.ac.ui.cs.advprog.reviewandrating.service.ReviewByListingService;
+import id.ac.ui.cs.advprog.reviewandrating.model.Review;
+import id.ac.ui.cs.advprog.reviewandrating.service.ReviewPerListingService;
+import id.ac.ui.cs.advprog.reviewandrating.service.ReviewService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/")
-public class ReviewAndRatingController {
-    private ReviewByListingService reviewByListingService;
-    private ReviewAndRatingService reviewAndRatingService;
-    private String urlApiGateaway = "localhost:8080";
+public class ReviewController {
+    @Autowired
+    private ReviewService reviewService;
 
     @Autowired
-    public ReviewAndRatingController(ReviewByListingService reviewByListingService,
-                                     ReviewAndRatingService reviewAndRatingService) {
-        this.reviewByListingService = reviewByListingService;
-        this.reviewAndRatingService = reviewAndRatingService;
-    }
+    private ReviewPerListingService reviewPerListingService;
+    private String urlApiGateaway = "localhost:8080";
+
+
 
     @GetMapping("/getReview/{listingId}")
     public ResponseEntity<Model> getReview(Model model, @PathVariable("listingId") String listingId,
                                            @RequestHeader("Authorization") String token) {
         try {
-            Double avg = reviewByListingService.getAverageRating(listingId, token);
+            if (!reviewPerListingService.isListingExist(listingId, token)) {
+                reviewPerListingService.deleteReviewInListing(listingId);
+                throw new Exception("Listing doesn't exists!");
+            }
+
+            Double avg = reviewPerListingService.averageRating(listingId);
             model.addAttribute("average_rating", avg);
 
-            List<ReviewAndRating> reviews = reviewByListingService.getReviewByListing(listingId, token);
+            List<Review> reviews = reviewPerListingService.getReviews(listingId);
             model.addAttribute("reviews_ratings", reviews);
 
             return ResponseEntity.ok(model);
@@ -48,20 +48,27 @@ public class ReviewAndRatingController {
     }
 
     @PostMapping("/createReview/{listingId}")
-    public ResponseEntity<String> createReview(@PathVariable("listingId") String listingId,
+    public ResponseEntity<Model> createReview(Model model, @PathVariable("listingId") String listingId,
                                                @RequestHeader("Authorization") String token,
-                                               @RequestBody ReviewAndRating reviewAndRating) {
+                                               @RequestBody Review review) {
 
         try {
-            String username = getUsernameFromToken(token);
-            reviewAndRatingService.create(listingId, username,
-                    reviewAndRating.getReview(), reviewAndRating.getRating(), token);
+            if (!reviewPerListingService.isListingExist(listingId, token)) {
+                reviewPerListingService.deleteReviewInListing(listingId);
+                throw new Exception("Listing doesn't exists!");
+            }
 
-            return ResponseEntity.ok(String.format("Review by %s Successfully Added to listing",
-                    username));
+            String username = getUsernameFromToken(token);
+            review = reviewService.create(listingId, username,
+                    review.getDescription(), review.getRating());
+
+            model.addAttribute("review", review);
+
+            return ResponseEntity.ok(model);
         }
         catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            model.addAttribute("Error Message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(model);
         }
     }
 
@@ -70,14 +77,22 @@ public class ReviewAndRatingController {
                                                     @RequestBody Map<String, String> map) {
 
         try {
+            String listingId = map.get("listingId");
+            String username = map.get("username");
+            if (!reviewPerListingService.isListingExist(listingId, token)) {
+                reviewPerListingService.deleteReviewInListing(listingId);
+                throw new Exception("Listing doesn't exists!");
+            }
+
             String role = getRoleFromToken(token);
             if (!role.equals("STAFF")) {
                 throw new Exception("Non STAFF can't allow user to review");
             }
-            reviewAndRatingService.allowUserToReview(map.get("username"), map.get("listingId"), token);
+
+            reviewService.allowToReview(listingId, username);
 
             return ResponseEntity.ok(String.format("Allow %s to review listing with id %s",
-                    map.get("username"), map.get("listingId")));
+                    username, listingId));
         }
         catch(Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
@@ -85,30 +100,45 @@ public class ReviewAndRatingController {
     }
 
     @PutMapping("/updateReview/{listingId}")
-    public ResponseEntity<String> updateReview(@PathVariable("listingId") String listingId,
+    public ResponseEntity<Model> updateReview(Model model, @PathVariable("listingId") String listingId,
                                                @RequestHeader("Authorization") String token,
-                                               @RequestBody ReviewAndRating reviewAndRating) {
+                                               @RequestBody Review modifiedReview) {
         try {
-            String username = getUsernameFromToken(token);
-            reviewAndRatingService.update(listingId, username, reviewAndRating, token);
+            if (!reviewPerListingService.isListingExist(listingId, token)) {
+                reviewPerListingService.deleteReviewInListing(listingId);
+                throw new Exception("Listing doesn't exists!");
+            }
 
-            return ResponseEntity.ok("Review Successfully modified");
+            String username = getUsernameFromToken(token);
+            modifiedReview = reviewService.update(listingId, username, modifiedReview);
+
+            model.addAttribute("new_review", modifiedReview);
+            return ResponseEntity.ok(model);
         }
         catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            model.addAttribute("Error Message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(model);
         }
     }
 
     @DeleteMapping("/deleteReview/{listingId}")
-    public ResponseEntity<String> deleteReview (@PathVariable("listingId") String listingId,
+    public ResponseEntity<Model> deleteReview (Model model, @PathVariable("listingId") String listingId,
                                                 @RequestHeader("Authorization") String token) {
         try {
+            if (!reviewPerListingService.isListingExist(listingId, token)) {
+                reviewPerListingService.deleteReviewInListing(listingId);
+                throw new Exception("Listing doesn't exists!");
+            }
+
             String username = getUsernameFromToken(token);
-            reviewAndRatingService.delete(listingId, username, token);
-            return ResponseEntity.ok("Review Successfully Deleted");
+            Review deletedReview = reviewService.delete(listingId, username);
+
+            model.addAttribute("deleted_review", deletedReview);
+            return ResponseEntity.ok(model);
         }
         catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            model.addAttribute("Error Message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(model);
         }
     }
 
