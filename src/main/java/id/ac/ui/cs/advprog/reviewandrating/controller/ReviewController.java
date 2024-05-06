@@ -37,7 +37,7 @@ public class ReviewController {
             model.addAttribute("average_rating", avg);
 
             List<Review> reviews = reviewPerListingService.getReviews(listingId);
-            model.addAttribute("reviews_ratings", reviews);
+            model.addAttribute("reviews", reviews);
 
             return ResponseEntity.ok(model);
         }
@@ -51,7 +51,6 @@ public class ReviewController {
     public ResponseEntity<Model> createReview(Model model, @PathVariable("listingId") String listingId,
                                                @RequestHeader("Authorization") String token,
                                                @RequestBody Review review) {
-
         try {
             if (!reviewPerListingService.isListingExist(listingId, token)) {
                 reviewPerListingService.deleteReviewInListing(listingId);
@@ -110,9 +109,9 @@ public class ReviewController {
             }
 
             String username = getUsernameFromToken(token);
-            modifiedReview = reviewService.update(listingId, username, modifiedReview);
+            Review newReview = reviewService.update(listingId, username, modifiedReview);
 
-            model.addAttribute("new_review", modifiedReview);
+            model.addAttribute("review", newReview);
             return ResponseEntity.ok(model);
         }
         catch (Exception e) {

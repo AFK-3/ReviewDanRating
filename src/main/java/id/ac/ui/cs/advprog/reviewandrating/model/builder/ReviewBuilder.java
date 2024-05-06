@@ -1,7 +1,6 @@
 package id.ac.ui.cs.advprog.reviewandrating.model.builder;
 
 import id.ac.ui.cs.advprog.reviewandrating.model.Review;
-import id.ac.ui.cs.advprog.reviewandrating.model.ReviewAndRating;
 import id.ac.ui.cs.advprog.reviewandrating.model.ReviewId;
 import org.springframework.stereotype.Component;
 

@@ -48,8 +48,8 @@ public class ReviewServiceImpl implements  ReviewService{
         if (review == null || review.getDescription() == null) {
             throw new IllegalArgumentException(String.format("%s didn't have review on this listing", username));
         }
-        reviewBuilder.setInstance(modifiedReview)
-                .addId(listingId, username);
+        modifiedReview = reviewBuilder.setInstance(modifiedReview)
+                .addId(listingId, username).build();
         reviewRepo.save(modifiedReview);
         return modifiedReview;
     }
