@@ -3,10 +3,11 @@ package id.ac.ui.cs.advprog.reviewandrating.model;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Map;
+import java.io.Serializable;
 
-@Getter @Setter
-public class Reviewable {
+@Getter
+@Setter
+public class ReviewId implements Serializable {
+    private String username;
     private String listingId;
-    private Map<String, ReviewAndRating> reviews;
 }
