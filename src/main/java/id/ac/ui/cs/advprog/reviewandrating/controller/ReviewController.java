@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
@@ -30,7 +31,7 @@ public class ReviewController {
         try {
             if (!reviewPerListingService.isListingExist(listingId, token)) {
                 reviewPerListingService.deleteReviewInListing(listingId);
-                throw new Exception("Listing doesn't exists!");
+                return ResponseEntity.notFound().build();
             }
 
             Double avg = reviewPerListingService.averageRating(listingId);
@@ -42,32 +43,29 @@ public class ReviewController {
             return ResponseEntity.ok(model);
         }
         catch (Exception e) {
-            model.addAttribute("Error Message", e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(model);
+            return ResponseEntity.badRequest().build();
         }
     }
 
     @PostMapping("/createReview/{listingId}")
-    public ResponseEntity<Model> createReview(Model model, @PathVariable("listingId") String listingId,
+    public ResponseEntity<Review> createReview(@PathVariable("listingId") String listingId,
                                                @RequestHeader("Authorization") String token,
                                                @RequestBody Review review) {
+
         try {
             if (!reviewPerListingService.isListingExist(listingId, token)) {
                 reviewPerListingService.deleteReviewInListing(listingId);
-                throw new Exception("Listing doesn't exists!");
+                return ResponseEntity.notFound().build();
             }
 
             String username = getUsernameFromToken(token);
             review = reviewService.create(listingId, username,
                     review.getDescription(), review.getRating());
 
-            model.addAttribute("review", review);
-
-            return ResponseEntity.ok(model);
+            return ResponseEntity.ok(review);
         }
         catch (Exception e) {
-            model.addAttribute("Error Message", e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(model);
+            return ResponseEntity.badRequest().build();
         }
     }
 
@@ -80,10 +78,11 @@ public class ReviewController {
             String username = map.get("username");
             if (!reviewPerListingService.isListingExist(listingId, token)) {
                 reviewPerListingService.deleteReviewInListing(listingId);
-                throw new Exception("Listing doesn't exists!");
+                return ResponseEntity.notFound().build();
             }
 
             String role = getRoleFromToken(token);
+            System.out.println(role);
             if (!role.equals("STAFF")) {
                 throw new Exception("Non STAFF can't allow user to review");
             }
@@ -94,54 +93,50 @@ public class ReviewController {
                     username, listingId));
         }
         catch(Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return ResponseEntity.badRequest().build();
         }
     }
 
     @PutMapping("/updateReview/{listingId}")
-    public ResponseEntity<Model> updateReview(Model model, @PathVariable("listingId") String listingId,
+    public ResponseEntity<Review> updateReview(@PathVariable("listingId") String listingId,
                                                @RequestHeader("Authorization") String token,
                                                @RequestBody Review modifiedReview) {
         try {
             if (!reviewPerListingService.isListingExist(listingId, token)) {
                 reviewPerListingService.deleteReviewInListing(listingId);
-                throw new Exception("Listing doesn't exists!");
+                return ResponseEntity.notFound().build();
             }
 
             String username = getUsernameFromToken(token);
             Review newReview = reviewService.update(listingId, username, modifiedReview);
 
-            model.addAttribute("review", newReview);
-            return ResponseEntity.ok(model);
+            return ResponseEntity.ok(newReview);
         }
         catch (Exception e) {
-            model.addAttribute("Error Message", e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(model);
+            return ResponseEntity.badRequest().build();
         }
     }
 
     @DeleteMapping("/deleteReview/{listingId}")
-    public ResponseEntity<Model> deleteReview (Model model, @PathVariable("listingId") String listingId,
+    public ResponseEntity<Review> deleteReview (@PathVariable("listingId") String listingId,
                                                 @RequestHeader("Authorization") String token) {
         try {
             if (!reviewPerListingService.isListingExist(listingId, token)) {
                 reviewPerListingService.deleteReviewInListing(listingId);
-                throw new Exception("Listing doesn't exists!");
+                return ResponseEntity.notFound().build();
             }
 
             String username = getUsernameFromToken(token);
             Review deletedReview = reviewService.delete(listingId, username);
 
-            model.addAttribute("deleted_review", deletedReview);
-            return ResponseEntity.ok(model);
+            return ResponseEntity.ok(deletedReview);
         }
         catch (Exception e) {
-            model.addAttribute("Error Message", e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(model);
+            return ResponseEntity.badRequest().build();
         }
     }
 
-    private String getUsernameFromToken(String token) throws Exception {
+    private String getUsernameFromToken(String token) throws RestClientException {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", token);
@@ -151,7 +146,7 @@ public class ReviewController {
         return response.getBody();
     }
 
-    private String getRoleFromToken(String token) throws Exception {
+    private String getRoleFromToken(String token) throws RestClientException {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", token);

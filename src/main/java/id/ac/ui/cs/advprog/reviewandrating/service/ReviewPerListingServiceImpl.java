@@ -7,6 +7,7 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -15,7 +16,14 @@ public class ReviewPerListingServiceImpl implements ReviewPerListingService{
     private ReviewRepository reviewRepo;
 
     public List<Review> getReviews(String listingId) {
-        return reviewRepo.findByListingId(listingId);
+        List<Review> reviews = reviewRepo.findByListingId(listingId);
+        List<Review> validReviews = new ArrayList<>();
+        for (Review review : reviews) {
+            if (review.getDescription() != null) {
+                validReviews.add(review);
+            }
+        }
+        return validReviews;
     }
     public void deleteReviewInListing(String listingId) {
         reviewRepo.deleteByListingId(listingId);

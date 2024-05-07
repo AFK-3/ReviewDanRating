@@ -59,13 +59,18 @@ public class ReviewServiceImpl implements  ReviewService{
         if (review == null || review.getDescription() == null) {
             throw new IllegalArgumentException(String.format("%s didn't have review on this listing", username));
         }
+        Review newReview = reviewBuilder.reset()
+                .addId(listingId, username)
+                .build();
         reviewRepo.delete(review);
+        reviewRepo.save(newReview);
         return review;
     }
     public void allowToReview(String listingId, String username) {
         if (find(listingId, username) != null) return;
 
-        Review review = reviewBuilder.addId(listingId, username)
+        Review review = reviewBuilder.reset()
+                .addId(listingId, username)
                 .build();
         reviewRepo.save(review);
     }
