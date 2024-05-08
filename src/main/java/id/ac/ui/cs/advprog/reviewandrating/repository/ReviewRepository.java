@@ -18,7 +18,7 @@ public interface ReviewRepository extends JpaRepository<Review, ReviewId> {
 
     @Modifying
     @Transactional
-    @Query("DELETE FROM Review r WHERE r.listingId = :listingId AND r.description IS NOT NULL")
+    @Query("DELETE FROM Review r WHERE r.listingId = :listingId")
     void deleteByListingId(@Param("listingId") String listingId);
 
     @Query("SELECT COALESCE(AVG(r.rating), 0) FROM Review r WHERE r.description IS NOT NULL")
