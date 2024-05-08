@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class ReviewServiceImpl implements  ReviewService{
@@ -17,8 +18,10 @@ public class ReviewServiceImpl implements  ReviewService{
 
     @Autowired
     private ReviewBuilder reviewBuilder;
-    public Review create(String listingId, String username, String description, int rating) {
-        Review review = find(listingId, username);
+    public CompletableFuture<Review> create(String listingId, String username, String description, int rating) throws Exception{
+        CompletableFuture<Review> futureReview = find(listingId, username);
+        Review review = futureReview.get();
+
         if (review == null) {
             throw new IllegalArgumentException(String.format("%s never buy this listing", username));
         }
@@ -33,29 +36,33 @@ public class ReviewServiceImpl implements  ReviewService{
                 .build();
 
         reviewRepo.save(review);
-        return review;
+        return CompletableFuture.completedFuture(review);
     }
-    public Review find(String listingId, String username) {
+    public CompletableFuture<Review> find(String listingId, String username) {
         ReviewId reviewId = new ReviewId();
         reviewId.setListingId(listingId);
         reviewId.setUsername(username);
 
         Optional<Review> optReview = reviewRepo.findById(reviewId);
-        return optReview.orElse(null);
+        return CompletableFuture.completedFuture(optReview.orElse(null));
     }
-    public Review update(String listingId, String username, Review modifiedReview) {
-        Review review = find(listingId, username);
+    public CompletableFuture<Review> update(String listingId, String username, Review modifiedReview) throws Exception {
+        CompletableFuture<Review> futureReview = find(listingId, username);
+        Review review = futureReview.get();
+
         if (review == null || review.getDescription() == null) {
             throw new IllegalArgumentException(String.format("%s didn't have review on this listing", username));
         }
         modifiedReview = reviewBuilder.setInstance(modifiedReview)
                 .addId(listingId, username).build();
         reviewRepo.save(modifiedReview);
-        return modifiedReview;
+        return CompletableFuture.completedFuture(modifiedReview);
     }
 
-    public Review delete(String listingId, String username) {
-        Review review = find(listingId, username);
+    public CompletableFuture<Review> delete(String listingId, String username) throws Exception{
+        CompletableFuture<Review> futureReview = find(listingId, username);
+        Review review = futureReview.get();
+
         if (review == null || review.getDescription() == null) {
             throw new IllegalArgumentException(String.format("%s didn't have review on this listing", username));
         }
@@ -64,12 +71,15 @@ public class ReviewServiceImpl implements  ReviewService{
                 .build();
         reviewRepo.delete(review);
         reviewRepo.save(newReview);
-        return review;
+        return CompletableFuture.completedFuture(review);
     }
-    public void allowToReview(String listingId, String username) {
-        if (find(listingId, username) != null) return;
+    public void allowToReview(String listingId, String username) throws Exception{
+        CompletableFuture<Review> futureReview = find(listingId, username);
+        Review review = futureReview.get();
 
-        Review review = reviewBuilder.reset()
+        if (review != null) return;
+
+        review = reviewBuilder.reset()
                 .addId(listingId, username)
                 .build();
         reviewRepo.save(review);
