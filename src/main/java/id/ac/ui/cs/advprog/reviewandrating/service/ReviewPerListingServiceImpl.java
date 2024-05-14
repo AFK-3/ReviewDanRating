@@ -37,7 +37,7 @@ public class ReviewPerListingServiceImpl implements ReviewPerListingService{
 
     @Async
     public CompletableFuture<Double> averageRating(String listingId) {
-        Double avgRating = reviewRepo.findAverageRating();
+        Double avgRating = reviewRepo.findAverageRating(listingId);
         return CompletableFuture.completedFuture(avgRating);
     }
     @Async

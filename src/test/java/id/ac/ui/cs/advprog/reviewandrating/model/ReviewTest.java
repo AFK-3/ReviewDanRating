@@ -75,4 +75,25 @@ public class ReviewTest {
         assertEquals(review.getRating(), 10);
         assertEquals(review.getDescription(), "Sangat Bagus");
     }
+
+    @Test
+    public void testBuilderModification() {
+        Review review = new Review();
+        String listingId = UUID.randomUUID().toString();
+        review.setListingId(listingId);
+        review.setUsername("Hanau");
+        review.setRating(10);
+        review.setDescription("Sangat Bagus");
+
+        listingId = UUID.randomUUID().toString();
+        reviewBuilder.setInstance(review)
+                .addId(listingId, "Farrell")
+                .addRating(5)
+                .addDescription("Mid");
+
+        assertEquals(review.getListingId(), listingId);
+        assertEquals(review.getUsername(), "Farrell");
+        assertEquals(review.getRating(), 5);
+        assertEquals(review.getDescription(), "Mid");
+    }
 }

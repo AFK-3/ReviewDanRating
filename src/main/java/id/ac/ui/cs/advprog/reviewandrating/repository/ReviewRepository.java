@@ -13,7 +13,7 @@ import java.util.List;
 
 @Repository
 public interface ReviewRepository extends JpaRepository<Review, ReviewId> {
-    @Query("SELECT r FROM Review r WHERE r.listingId = :listingId")
+    @Query("SELECT r FROM Review r WHERE r.listingId = :listingId AND r.description IS NOT NULL")
     List<Review> findByListingId(@Param("listingId") String listingId);
 
     @Modifying
@@ -21,6 +21,6 @@ public interface ReviewRepository extends JpaRepository<Review, ReviewId> {
     @Query("DELETE FROM Review r WHERE r.listingId = :listingId")
     void deleteByListingId(@Param("listingId") String listingId);
 
-    @Query("SELECT COALESCE(AVG(r.rating), 0) FROM Review r WHERE r.description IS NOT NULL")
-    Double findAverageRating();
+    @Query("SELECT COALESCE(AVG(r.rating), 0) FROM Review r WHERE r.listingId = :listingId AND r.description IS NOT NULL")
+    Double findAverageRating(@Param("listingId") String listingId);
 }
