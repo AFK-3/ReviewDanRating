@@ -67,6 +67,9 @@ jobs:
       - name: Install psql
         run: sudo apt-get update && sudo apt-get install -y postgresql-client
 
+      - name: Start PostgreSQL Server
+        run: service postgresql start
+
       - name: Setup Password
         run: psql -U postgres -c "ALTER USER postgres WITH PASSWORD 'my-password';"
 
