@@ -20,8 +20,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 public class ReviewServiceTest {
-
-
     @Spy
     ReviewBuilder reviewBuilder;
     @Mock
@@ -152,11 +150,17 @@ public class ReviewServiceTest {
 
     @Test
     public void testUpdateButNeverReview() {
+        createIncompleteReview();
+        IllegalArgumentException e1 = assertThrows(IllegalArgumentException.class, () ->
+                reviewService.update(incompleteReviewId.getListingId(), incompleteReviewId.getUsername(), new Review()));
+
+        assertEquals(e1.getMessage(), String.format("%s didn't have review on this listing", incompleteReviewId.getUsername()));
+
         createFakeReview();
-        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () ->
+        IllegalArgumentException e2 = assertThrows(IllegalArgumentException.class, () ->
                 reviewService.update(fakeId.getListingId(), fakeId.getUsername(), new Review()));
 
-        assertEquals(e.getMessage(), String.format("%s didn't have review on this listing", fakeId.getUsername()));
+        assertEquals(e2.getMessage(), String.format("%s didn't have review on this listing", fakeId.getUsername()));
     }
 
     @Test
@@ -180,11 +184,17 @@ public class ReviewServiceTest {
 
     @Test
     public void testDeleteButNeverReview(){
+        createIncompleteReview();
+        IllegalArgumentException e1 = assertThrows(IllegalArgumentException.class, () ->
+                reviewService.delete(incompleteReviewId.getListingId(), incompleteReviewId.getUsername()));
+
+        assertEquals(e1.getMessage(), String.format("%s didn't have review on this listing", incompleteReviewId.getUsername()));
+
         createFakeReview();
-        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () ->
+        IllegalArgumentException e2 = assertThrows(IllegalArgumentException.class, () ->
                 reviewService.delete(fakeId.getListingId(), fakeId.getUsername()));
 
-        assertEquals(e.getMessage(), String.format("%s didn't have review on this listing", fakeId.getUsername()));
+        assertEquals(e2.getMessage(), String.format("%s didn't have review on this listing", fakeId.getUsername()));
     }
 
     @Test

@@ -22,7 +22,11 @@ public class ReviewController {
 
     @Autowired
     private ReviewPerListingService reviewPerListingService;
-    private String urlApiGateaway = "localhost:8080/";
+
+    @Autowired
+    private RestTemplate restTemplate;
+    private String urlApiGateaway = "http://35.198.243.155/";
+    private String urlTemp = "localhost:8080/";
 
 
 
@@ -137,22 +141,20 @@ public class ReviewController {
     }
 
     private String getUsernameFromToken(String token) throws RestClientException {
-        RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", token);
         HttpEntity<String> httpEntity = new HttpEntity<>("body", headers);
-        ResponseEntity<String> response = restTemplate.exchange(String.format("%suser/get-username", urlApiGateaway),
+        ResponseEntity<String> response = restTemplate.exchange(String.format("%suser/get-username", urlTemp),
                 HttpMethod.GET, httpEntity, String.class);
 
         return response.getBody();
     }
 
     private String getRoleFromToken(String token) throws RestClientException {
-        RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", token);
         HttpEntity<String> httpEntity = new HttpEntity<>("body", headers);
-        ResponseEntity<String> response = restTemplate.exchange(String.format("%suser/get-role", urlApiGateaway),
+        ResponseEntity<String> response = restTemplate.exchange(String.format("%suser/get-role", urlTemp),
                 HttpMethod.GET, httpEntity, String.class);
 
         return response.getBody();

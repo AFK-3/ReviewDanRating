@@ -14,24 +14,21 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @Service
-@EnableAsync
 public class ReviewPerListingServiceImpl implements ReviewPerListingService{
     @Autowired
     private ReviewRepository reviewRepo;
 
+    @Autowired
+    RestTemplate restTemplate;
+    private String urlApiGateaway = "http://35.198.243.155/";
+
     public List<Review> getReviews(String listingId) {
-        List<Review> reviews = reviewRepo.findByListingId(listingId);
-        List<Review> validReviews = new ArrayList<>();
-        for (Review review : reviews) {
-            if (review.getDescription() != null) {
-                validReviews.add(review);
-            }
-        }
-        return validReviews;
+        return reviewRepo.findByListingId(listingId);
     }
-    @Async
-    public void deleteReviewInListing(String listingId) {
+    @Async("Executor")
+    public CompletableFuture<Void> deleteReviewInListing(String listingId) {
         reviewRepo.deleteByListingId(listingId);
+        return CompletableFuture.completedFuture(null);
     }
 
     public Double averageRating(String listingId) {
@@ -43,7 +40,6 @@ public class ReviewPerListingServiceImpl implements ReviewPerListingService{
         String url = "http://localhost:8081/listing/get-by-id/" + listingId + "?listingId=" + listingId;
 
         try {
-            RestTemplate restTemplate = new RestTemplate();
             HttpHeaders headers = new HttpHeaders();
             headers.add("Authorization", token);
             HttpEntity<String> httpEntity = new HttpEntity<>("body", headers);
