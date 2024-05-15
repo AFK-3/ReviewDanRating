@@ -63,7 +63,16 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
+            
+      - name: Install psql
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
 
+      - name: Setup Password
+        run: sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD 'my-password';"
+
+      - name: Create db
+        run: sudo -u postgres createdb reviewtest
+      
       - name: Test with Gradle
         run: |
           ./gradlew check --info --stacktrace
