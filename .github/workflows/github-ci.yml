@@ -70,14 +70,12 @@ jobs:
       - name: Start PostgreSQL Server
         run: sudo -n service postgresql start
 
-      - name: Setup Password
+      - name: Setup Password and rreatedb
         run: |
           pushd /
           sudo -u postgres psql -U postgres -c "ALTER USER postgres WITH PASSWORD 'my-password';"
+          sudo -u postgres createdb reviewtest
           popd
-
-      - name: Create db
-        run: createdb reviewtest
       
       - name: Test with Gradle
         run: |
