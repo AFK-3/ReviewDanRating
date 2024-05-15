@@ -22,7 +22,7 @@ public class ReviewController {
 
     @Autowired
     private ReviewPerListingService reviewPerListingService;
-    private String urlApiGateaway = "localhost:8080";
+    private String urlApiGateaway = "localhost:8080/";
 
 
 
@@ -30,17 +30,14 @@ public class ReviewController {
     public ResponseEntity<Model> getReview(Model model, @PathVariable("listingId") String listingId,
                                            @RequestHeader("Authorization") String token) {
         try {
-            CompletableFuture<Boolean> futureChecker = reviewPerListingService.isListingExist(listingId, token);
-            boolean checker = futureChecker.get();
-            System.out.println(checker);
-            if (!checker) {
+            if (!reviewPerListingService.isListingExist(listingId, token)) {
                 reviewPerListingService.deleteReviewInListing(listingId);
                 return ResponseEntity.notFound().build();
             }
-            Double avg = reviewPerListingService.averageRating(listingId).get();
+            Double avg = reviewPerListingService.averageRating(listingId);
             model.addAttribute("average_rating", avg);
 
-            List<Review> reviews = reviewPerListingService.getReviews(listingId).get();
+            List<Review> reviews = reviewPerListingService.getReviews(listingId);
             model.addAttribute("reviews", reviews);
 
             return ResponseEntity.ok(model);
@@ -56,15 +53,14 @@ public class ReviewController {
                                                @RequestBody Review review) {
 
         try {
-            CompletableFuture<Boolean> futureChecker = reviewPerListingService.isListingExist(listingId, token);
-            if (!futureChecker.get()) {
+            if (!reviewPerListingService.isListingExist(listingId, token)) {
                 reviewPerListingService.deleteReviewInListing(listingId);
                 return ResponseEntity.notFound().build();
             }
 
             String username = getUsernameFromToken(token);
             review = reviewService.create(listingId, username,
-                    review.getDescription(), review.getRating()).get();
+                    review.getDescription(), review.getRating());
 
             return ResponseEntity.ok(review);
         }
@@ -80,8 +76,7 @@ public class ReviewController {
         try {
             String listingId = map.get("listingId");
             String username = map.get("username");
-            CompletableFuture<Boolean> futureChecker = reviewPerListingService.isListingExist(listingId, token);
-            if (!futureChecker.get()) {
+            if (!reviewPerListingService.isListingExist(listingId, token)) {
                 reviewPerListingService.deleteReviewInListing(listingId);
                 return ResponseEntity.notFound().build();
             }
@@ -107,14 +102,13 @@ public class ReviewController {
                                                @RequestHeader("Authorization") String token,
                                                @RequestBody Review modifiedReview) {
         try {
-            CompletableFuture<Boolean> futureChecker = reviewPerListingService.isListingExist(listingId, token);
-            if (!futureChecker.get()) {
+            if (!reviewPerListingService.isListingExist(listingId, token)) {
                 reviewPerListingService.deleteReviewInListing(listingId);
                 return ResponseEntity.notFound().build();
             }
 
             String username = getUsernameFromToken(token);
-            Review newReview = reviewService.update(listingId, username, modifiedReview).get();
+            Review newReview = reviewService.update(listingId, username, modifiedReview);
 
             return ResponseEntity.ok(newReview);
         }
@@ -127,14 +121,13 @@ public class ReviewController {
     public ResponseEntity<Review> deleteReview (@PathVariable("listingId") String listingId,
                                                 @RequestHeader("Authorization") String token) {
         try {
-            CompletableFuture<Boolean> futureChecker = reviewPerListingService.isListingExist(listingId, token);
-            if (!futureChecker.get()) {
+            if (!reviewPerListingService.isListingExist(listingId, token)) {
                 reviewPerListingService.deleteReviewInListing(listingId);
                 return ResponseEntity.notFound().build();
             }
 
             String username = getUsernameFromToken(token);
-            Review deletedReview = reviewService.delete(listingId, username).get();
+            Review deletedReview = reviewService.delete(listingId, username);
 
             return ResponseEntity.ok(deletedReview);
         }
@@ -148,7 +141,8 @@ public class ReviewController {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", token);
         HttpEntity<String> httpEntity = new HttpEntity<>("body", headers);
-        ResponseEntity<String> response = restTemplate.exchange("http://localhost:8080/user/get-username", HttpMethod.GET, httpEntity, String.class);
+        ResponseEntity<String> response = restTemplate.exchange(String.format("%suser/get-username", urlApiGateaway),
+                HttpMethod.GET, httpEntity, String.class);
 
         return response.getBody();
     }
@@ -158,7 +152,8 @@ public class ReviewController {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", token);
         HttpEntity<String> httpEntity = new HttpEntity<>("body", headers);
-        ResponseEntity<String> response = restTemplate.exchange("http://localhost:8080/user/get-role", HttpMethod.GET, httpEntity, String.class);
+        ResponseEntity<String> response = restTemplate.exchange(String.format("%suser/get-role", urlApiGateaway),
+                HttpMethod.GET, httpEntity, String.class);
 
         return response.getBody();
     }

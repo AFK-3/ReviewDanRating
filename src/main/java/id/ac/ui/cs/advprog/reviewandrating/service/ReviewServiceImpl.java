@@ -6,7 +6,6 @@ import id.ac.ui.cs.advprog.reviewandrating.model.builder.ReviewBuilder;
 import id.ac.ui.cs.advprog.reviewandrating.repository.ReviewRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,17 +13,15 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 @Service
-@EnableAsync
 public class ReviewServiceImpl implements  ReviewService{
     @Autowired
     private ReviewRepository reviewRepo;
 
     @Autowired
     private ReviewBuilder reviewBuilder;
-    @Async
-    public CompletableFuture<Review> create(String listingId, String username, String description, int rating) throws Exception{
-        CompletableFuture<Review> futureReview = find(listingId, username);
-        Review review = futureReview.get();
+
+    public Review create(String listingId, String username, String description, int rating) throws Exception{
+        Review review = find(listingId, username);
 
         if (review == null) {
             throw new IllegalArgumentException(String.format("%s never buy this listing", username));
@@ -40,23 +37,20 @@ public class ReviewServiceImpl implements  ReviewService{
                 .build();
 
         reviewRepo.save(review);
-        return CompletableFuture.completedFuture(review);
+        return review;
     }
 
-    @Async
-    public CompletableFuture<Review> find(String listingId, String username) {
+    public Review find(String listingId, String username) {
         ReviewId reviewId = new ReviewId();
         reviewId.setListingId(listingId);
         reviewId.setUsername(username);
 
         Optional<Review> optReview = reviewRepo.findById(reviewId);
-        return CompletableFuture.completedFuture(optReview.orElse(null));
+        return optReview.orElse(null);
     }
 
-    @Async
-    public CompletableFuture<Review> update(String listingId, String username, Review modifiedReview) throws Exception {
-        CompletableFuture<Review> futureReview = find(listingId, username);
-        Review review = futureReview.get();
+    public Review update(String listingId, String username, Review modifiedReview) throws Exception {
+        Review review = find(listingId, username);
 
         if (review == null || review.getDescription() == null) {
             throw new IllegalArgumentException(String.format("%s didn't have review on this listing", username));
@@ -64,13 +58,11 @@ public class ReviewServiceImpl implements  ReviewService{
         modifiedReview = reviewBuilder.setInstance(modifiedReview)
                 .addId(listingId, username).build();
         reviewRepo.save(modifiedReview);
-        return CompletableFuture.completedFuture(modifiedReview);
+        return modifiedReview;
     }
 
-    @Async
-    public CompletableFuture<Review> delete(String listingId, String username) throws Exception{
-        CompletableFuture<Review> futureReview = find(listingId, username);
-        Review review = futureReview.get();
+    public Review delete(String listingId, String username) throws Exception{
+        Review review = find(listingId, username);
 
         if (review == null || review.getDescription() == null) {
             throw new IllegalArgumentException(String.format("%s didn't have review on this listing", username));
@@ -80,13 +72,11 @@ public class ReviewServiceImpl implements  ReviewService{
                 .build();
         reviewRepo.delete(review);
         reviewRepo.save(newReview);
-        return CompletableFuture.completedFuture(review);
+        return review;
     }
 
-    @Async
-    public void allowToReview(String listingId, String username) throws Exception{
-        CompletableFuture<Review> futureReview = find(listingId, username);
-        Review review = futureReview.get();
+    public void allowToReview(String listingId, String username){
+        Review review = find(listingId, username);
 
         if (review != null) return;
 

@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public interface ReviewPerListingService {
-    public CompletableFuture<List<Review>> getReviews(String listingId);
+    public List<Review> getReviews(String listingId);
     public void deleteReviewInListing(String listingId);
-    public CompletableFuture<Double> averageRating(String listingId);
-    public CompletableFuture<Boolean> isListingExist(String listingId, String token);
+    public Double averageRating(String listingId);
+    public Boolean isListingExist(String listingId, String token);
 }

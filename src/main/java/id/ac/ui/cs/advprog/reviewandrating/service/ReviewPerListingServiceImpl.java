@@ -19,8 +19,7 @@ public class ReviewPerListingServiceImpl implements ReviewPerListingService{
     @Autowired
     private ReviewRepository reviewRepo;
 
-    @Async
-    public CompletableFuture<List<Review>> getReviews(String listingId) {
+    public List<Review> getReviews(String listingId) {
         List<Review> reviews = reviewRepo.findByListingId(listingId);
         List<Review> validReviews = new ArrayList<>();
         for (Review review : reviews) {
@@ -28,20 +27,19 @@ public class ReviewPerListingServiceImpl implements ReviewPerListingService{
                 validReviews.add(review);
             }
         }
-        return CompletableFuture.completedFuture(validReviews);
+        return validReviews;
     }
     @Async
     public void deleteReviewInListing(String listingId) {
         reviewRepo.deleteByListingId(listingId);
     }
 
-    @Async
-    public CompletableFuture<Double> averageRating(String listingId) {
+    public Double averageRating(String listingId) {
         Double avgRating = reviewRepo.findAverageRating(listingId);
-        return CompletableFuture.completedFuture(avgRating);
+        return avgRating;
     }
-    @Async
-    public CompletableFuture<Boolean> isListingExist(String listingId, String token) {
+
+    public Boolean isListingExist(String listingId, String token) {
         String url = "http://localhost:8081/listing/get-by-id/" + listingId + "?listingId=" + listingId;
 
         try {
@@ -51,10 +49,10 @@ public class ReviewPerListingServiceImpl implements ReviewPerListingService{
             HttpEntity<String> httpEntity = new HttpEntity<>("body", headers);
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, httpEntity, String.class);
 
-            return CompletableFuture.completedFuture(true);
+            return true;
         }
         catch (Exception e) {
-            return CompletableFuture.completedFuture(false);
+            return false;
         }
     }
 }
