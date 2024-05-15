@@ -12,5 +12,5 @@ ENV JDBC_DATABASE_USERNAME ${JDBC_DATABASE_USERNAME}
 WORKDIR /app
 RUN ls -al
 COPY ./ReviewAndRating-0.0.1-SNAPSHOT.jar /app
-EXPOSE 8080
+EXPOSE 8082
 CMD ["java","-jar","ReviewAndRating-0.0.1-SNAPSHOT.jar"]
