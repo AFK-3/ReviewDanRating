@@ -71,7 +71,10 @@ jobs:
         run: sudo -n service postgresql start
 
       - name: Setup Password
-        run: psql -U postgres -c "ALTER USER postgres WITH PASSWORD 'my-password';"
+        run: |
+          pushd /
+          sudo -u postgres psql -U postgres -c "ALTER USER postgres WITH PASSWORD 'my-password';"
+          popd
 
       - name: Create db
         run: createdb reviewtest
