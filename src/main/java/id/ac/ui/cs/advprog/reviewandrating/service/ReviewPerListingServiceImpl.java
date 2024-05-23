@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @Service
+@EnableAsync
 public class ReviewPerListingServiceImpl implements ReviewPerListingService{
     @Autowired
     private ReviewRepository reviewRepo;
@@ -25,9 +26,10 @@ public class ReviewPerListingServiceImpl implements ReviewPerListingService{
     public List<Review> getReviews(String listingId) {
         return reviewRepo.findByListingId(listingId);
     }
-    @Async("Executor")
+    @Async("asyncTaskExecutor")
     public CompletableFuture<Void> deleteReviewInListing(String listingId) {
         reviewRepo.deleteByListingId(listingId);
+        System.out.println(Thread.currentThread().toString());
         return CompletableFuture.completedFuture(null);
     }
 
@@ -36,19 +38,4 @@ public class ReviewPerListingServiceImpl implements ReviewPerListingService{
         return avgRating;
     }
 
-    public Boolean isListingExist(String listingId, String token) {
-        String url = "http://localhost:8081/listing/get-by-id/" + listingId + "?listingId=" + listingId;
-
-        try {
-            HttpHeaders headers = new HttpHeaders();
-            headers.add("Authorization", token);
-            HttpEntity<String> httpEntity = new HttpEntity<>("body", headers);
-            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, httpEntity, String.class);
-
-            return true;
-        }
-        catch (Exception e) {
-            return false;
-        }
-    }
 }

@@ -1,5 +1,7 @@
 package id.ac.ui.cs.advprog.reviewandrating.controller;
 
+import id.ac.ui.cs.advprog.reviewandrating.middleware.AuthMiddleware;
+import id.ac.ui.cs.advprog.reviewandrating.middleware.ListingMIddleware;
 import id.ac.ui.cs.advprog.reviewandrating.model.Review;
 import id.ac.ui.cs.advprog.reviewandrating.service.ReviewPerListingService;
 import id.ac.ui.cs.advprog.reviewandrating.service.ReviewService;
@@ -12,7 +14,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
+
 
 @RestController
 @RequestMapping("/")
@@ -24,17 +26,16 @@ public class ReviewController {
     private ReviewPerListingService reviewPerListingService;
 
     @Autowired
-    private RestTemplate restTemplate;
-    private String urlApiGateaway = "http://35.198.243.155/";
-    private String urlTemp = "localhost:8080/";
+    AuthMiddleware authMiddleware;
 
-
+    @Autowired
+    ListingMIddleware listingMIddleware;
 
     @GetMapping("/getReview/{listingId}")
     public ResponseEntity<Model> getReview(Model model, @PathVariable("listingId") String listingId,
                                            @RequestHeader("Authorization") String token) {
         try {
-            if (!reviewPerListingService.isListingExist(listingId, token)) {
+            if (!listingMIddleware.isListingExist(listingId, token)) {
                 reviewPerListingService.deleteReviewInListing(listingId);
                 return ResponseEntity.notFound().build();
             }
@@ -47,6 +48,9 @@ public class ReviewController {
             return ResponseEntity.ok(model);
         }
         catch (Exception e) {
+            if (e instanceof  RestClientException) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
             return ResponseEntity.badRequest().build();
         }
     }
@@ -57,18 +61,21 @@ public class ReviewController {
                                                @RequestBody Review review) {
 
         try {
-            if (!reviewPerListingService.isListingExist(listingId, token)) {
+            if (!listingMIddleware.isListingExist(listingId, token)) {
                 reviewPerListingService.deleteReviewInListing(listingId);
                 return ResponseEntity.notFound().build();
             }
 
-            String username = getUsernameFromToken(token);
+            String username = authMiddleware.getUsernameFromToken(token);
             review = reviewService.create(listingId, username,
                     review.getDescription(), review.getRating());
 
             return ResponseEntity.ok(review);
         }
         catch (Exception e) {
+            if (e instanceof  RestClientException) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
             return ResponseEntity.badRequest().build();
         }
     }
@@ -80,15 +87,14 @@ public class ReviewController {
         try {
             String listingId = map.get("listingId");
             String username = map.get("username");
-            if (!reviewPerListingService.isListingExist(listingId, token)) {
+            if (!listingMIddleware.isListingExist(listingId, token)) {
                 reviewPerListingService.deleteReviewInListing(listingId);
                 return ResponseEntity.notFound().build();
             }
 
-            String role = getRoleFromToken(token);
-            System.out.println(role);
+            String role = authMiddleware.getRoleFromToken(token);
             if (!role.equals("STAFF")) {
-                throw new Exception("Non STAFF can't allow user to review");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Only STAFF can allow user to review");
             }
 
             reviewService.allowToReview(listingId, username);
@@ -97,6 +103,9 @@ public class ReviewController {
                     username, listingId));
         }
         catch(Exception e) {
+            if (e instanceof  RestClientException) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
             return ResponseEntity.badRequest().build();
         }
     }
@@ -106,17 +115,20 @@ public class ReviewController {
                                                @RequestHeader("Authorization") String token,
                                                @RequestBody Review modifiedReview) {
         try {
-            if (!reviewPerListingService.isListingExist(listingId, token)) {
+            if (!listingMIddleware.isListingExist(listingId, token)) {
                 reviewPerListingService.deleteReviewInListing(listingId);
                 return ResponseEntity.notFound().build();
             }
 
-            String username = getUsernameFromToken(token);
+            String username = authMiddleware.getUsernameFromToken(token);
             Review newReview = reviewService.update(listingId, username, modifiedReview);
 
             return ResponseEntity.ok(newReview);
         }
         catch (Exception e) {
+            if (e instanceof  RestClientException) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
             return ResponseEntity.badRequest().build();
         }
     }
@@ -125,38 +137,21 @@ public class ReviewController {
     public ResponseEntity<Review> deleteReview (@PathVariable("listingId") String listingId,
                                                 @RequestHeader("Authorization") String token) {
         try {
-            if (!reviewPerListingService.isListingExist(listingId, token)) {
+            if (!listingMIddleware  .isListingExist(listingId, token)) {
                 reviewPerListingService.deleteReviewInListing(listingId);
                 return ResponseEntity.notFound().build();
             }
 
-            String username = getUsernameFromToken(token);
+            String username = authMiddleware.getUsernameFromToken(token);
             Review deletedReview = reviewService.delete(listingId, username);
 
             return ResponseEntity.ok(deletedReview);
         }
         catch (Exception e) {
+            if (e instanceof  RestClientException) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
             return ResponseEntity.badRequest().build();
         }
-    }
-
-    private String getUsernameFromToken(String token) throws RestClientException {
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", token);
-        HttpEntity<String> httpEntity = new HttpEntity<>("body", headers);
-        ResponseEntity<String> response = restTemplate.exchange(String.format("%suser/get-username", urlTemp),
-                HttpMethod.GET, httpEntity, String.class);
-
-        return response.getBody();
-    }
-
-    private String getRoleFromToken(String token) throws RestClientException {
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", token);
-        HttpEntity<String> httpEntity = new HttpEntity<>("body", headers);
-        ResponseEntity<String> response = restTemplate.exchange(String.format("%suser/get-role", urlTemp),
-                HttpMethod.GET, httpEntity, String.class);
-
-        return response.getBody();
     }
 }
