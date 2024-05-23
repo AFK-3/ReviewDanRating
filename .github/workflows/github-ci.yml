@@ -125,11 +125,6 @@ jobs:
       - name: update permission
         run: chmod 400 ssh-key.pem
 
-      - name: Push prometheus.yml and grafana.yml to GCP
-        run: |
-          scp -i ssh-key.pem /monitoring/grafana/grafana.yml ${{ secrets.GCP_USERNAME }}@${{ secrets.GCP_STATIC_IP }}:
-          scp -i ssh-key.pem /monitoring/prometheus/prometheus.yml ${{ secrets.GCP_USERNAME }}@${{ secrets.GCP_STATIC_IP }}:
-
       - name: Deploy to GCP
         run: |
           ssh -o StrictHostKeyChecking=no -i ssh-key.pem ${{ secrets.GCP_USERNAME }}@${{ secrets.GCP_STATIC_IP }} "
