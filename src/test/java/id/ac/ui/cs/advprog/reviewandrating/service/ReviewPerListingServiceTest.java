@@ -8,6 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -21,6 +22,7 @@ import java.net.http.HttpResponse;
 import java.sql.Array;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
@@ -76,31 +78,5 @@ public class ReviewPerListingServiceTest {
         catch (Exception e) {
             fail();
         }
-    }
-
-    @Test
-    public void testListingExist() {
-        String url = "http://localhost:8081/listing/get-by-id/" + listingId + "?listingId=" + listingId;
-        String token = "Bearer ABC";
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", token);
-        HttpEntity<String> httpEntity = new HttpEntity<>("body", headers);
-
-        when(restTemplate.exchange(url, HttpMethod.GET, httpEntity, String.class)).thenReturn(ResponseEntity.ok().build());
-
-        assertTrue(reviewPerListing.isListingExist(listingId, token));
-    }
-
-    @Test
-    public void testListingNotExist() {
-        String url = "http://localhost:8081/listing/get-by-id/" + listingId + "?listingId=" + listingId;
-        String token = "Bearer ABC";
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", token);
-        HttpEntity<String> httpEntity = new HttpEntity<>("body", headers);
-
-        when(restTemplate.exchange(url, HttpMethod.GET, httpEntity, String.class)).thenThrow(HttpClientErrorException.class);
-
-        assertFalse(reviewPerListing.isListingExist(listingId, token));
     }
 }

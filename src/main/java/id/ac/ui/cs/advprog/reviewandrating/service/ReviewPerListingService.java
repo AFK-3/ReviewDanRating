@@ -9,5 +9,4 @@ public interface ReviewPerListingService {
     public List<Review> getReviews(String listingId);
     public CompletableFuture<Void> deleteReviewInListing(String listingId);
     public Double averageRating(String listingId);
-    public Boolean isListingExist(String listingId, String token);
 }
