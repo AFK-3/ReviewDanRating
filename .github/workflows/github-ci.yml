@@ -67,11 +67,15 @@ jobs:
       - name: Install psql
         run: sudo apt-get update && sudo apt-get install -y postgresql-client
 
-      - name: Setup Password
-        run: sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD 'my-password';"
+      - name: Start PostgreSQL Server
+        run: sudo -n service postgresql start
 
-      - name: Create db
-        run: sudo -u postgres createdb reviewtest
+      - name: Setup Password and rreatedb
+        run: |
+          pushd /
+          sudo -u postgres psql -U postgres -c "ALTER USER postgres WITH PASSWORD 'my-password';"
+          sudo -u postgres createdb reviewtest
+          popd
       
       - name: Test with Gradle
         run: |
@@ -101,7 +105,7 @@ jobs:
         run: export DOCKER_BUILDKIT=1
       - name: Build Docker Image
         run: |
-          docker build --build-arg PRODUCTION=$PRODUCTION --build-arg JDBC_DATABASE_PASSWORD=$JDBC_DATABASE_PASSWORD --build-arg JDBC_DATABASE_URL=$JDBC_DATABASE_URL --build-arg JDBC_DATABASE_USERNAME=$JDBC_DATABASE_USERNAME -t ${{ secrets.REGISTRY_USER }}/${{ secrets.IMAGE_NAME }}:${{ secrets.IMAGE_TAG }} .
+          docker build --build-arg PRODUCTION=${{ secrets.PRODUCTION }} --build-arg JDBC_DATABASE_PASSWORD=${{ secrets.JDBC_DATABASE_PASSWORD }} --build-arg JDBC_DATABASE_URL=${{ secrets.JDBC_DATABASE_URL }} --build-arg JDBC_DATABASE_USERNAME=${{ secrets.JDBC_DATABASE_USERNAME }} -t ${{ secrets.REGISTRY_USER }}/${{ secrets.IMAGE_NAME }}:${{ secrets.IMAGE_TAG }} .
           docker push ${{ secrets.REGISTRY_USER }}/${{ secrets.IMAGE_NAME }}:${{ secrets.IMAGE_TAG }}
 
   deploy:
