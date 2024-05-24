@@ -11,10 +11,14 @@ import org.springframework.web.client.RestTemplate;
 
 @Component
 public class AuthMiddleware {
-    private String urlApiGateaway = "http://35.198.243.155/";
+    private final String urlApiGateaway = "http://35.198.243.155/";
+
+    RestTemplate restTemplate;
 
     @Autowired
-    RestTemplate restTemplate;
+    public AuthMiddleware(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
     public String getUsernameFromToken(String token) throws RestClientException {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", token);

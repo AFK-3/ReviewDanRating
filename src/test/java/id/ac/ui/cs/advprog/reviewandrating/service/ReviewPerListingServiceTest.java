@@ -38,7 +38,7 @@ public class ReviewPerListingServiceTest {
     }
 
     @Test
-    public void testFindByListingId() {
+    void testFindByListingId() {
         List<Review> reviews = new ArrayList<>();
         Review review1 = new Review();
         Review review2 = new Review();
@@ -53,7 +53,7 @@ public class ReviewPerListingServiceTest {
     }
 
     @Test
-    public void testGetAverage() {
+    void testGetAverage() {
         Double avg = 7.5;
         when(reviewRepo.findAverageRating(listingId)).thenReturn(avg);
         Double avgFound = reviewPerListing.averageRating(listingId);
@@ -61,7 +61,7 @@ public class ReviewPerListingServiceTest {
     }
 
     @Test
-    public void testDeleteReviews() {
+    void testDeleteReviews() {
         try {
             CompletableFuture<Void> something = reviewPerListing.deleteReviewInListing(listingId);
             something.get();

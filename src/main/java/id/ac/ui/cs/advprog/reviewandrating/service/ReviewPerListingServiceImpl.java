@@ -30,13 +30,11 @@ public class ReviewPerListingServiceImpl implements ReviewPerListingService{
     @Async("asyncTaskExecutor")
     public CompletableFuture<Void> deleteReviewInListing(String listingId) {
         reviewRepo.deleteByListingId(listingId);
-        System.out.println(Thread.currentThread().toString());
         return CompletableFuture.completedFuture(null);
     }
 
     public Double averageRating(String listingId) {
-        Double avgRating = reviewRepo.findAverageRating(listingId);
-        return avgRating;
+        return reviewRepo.findAverageRating(listingId);
     }
 
 }
