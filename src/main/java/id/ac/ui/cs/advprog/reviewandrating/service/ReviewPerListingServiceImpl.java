@@ -16,12 +16,9 @@ import java.util.concurrent.CompletableFuture;
 public class ReviewPerListingServiceImpl implements ReviewPerListingService{
     private final ReviewRepository reviewRepo;
 
-    RestTemplate restTemplate;
-
     @Autowired
-    public ReviewPerListingServiceImpl(ReviewRepository reviewRepo, RestTemplate restTemplate) {
+    public ReviewPerListingServiceImpl(ReviewRepository reviewRepo) {
         this.reviewRepo = reviewRepo;
-        this.restTemplate = restTemplate;
     }
 
     public List<Review> getReviews(String listingId) {

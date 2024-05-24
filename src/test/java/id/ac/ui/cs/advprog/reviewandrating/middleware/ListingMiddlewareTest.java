@@ -37,13 +37,11 @@ public class ListingMiddlewareTest {
     void setUp() {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", token);
-        HttpEntity<String> httpEntity = new HttpEntity<>("body", headers);
+        httpEntity = new HttpEntity<>("body", headers);
     }
 
     @Test
     void testListingExist() {
-
-
         when(restTemplate.exchange(url, HttpMethod.GET, httpEntity, String.class)).thenReturn(ResponseEntity.ok().build());
         boolean isExist = listingMiddleware.isListingExist("123", token);
         assertTrue(isExist);
@@ -51,10 +49,6 @@ public class ListingMiddlewareTest {
 
     @Test
     void testListingNotExist() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", token);
-        HttpEntity<String> httpEntity = new HttpEntity<>("body", headers);
-
         when(restTemplate.exchange(url, HttpMethod.GET, httpEntity, String.class)).thenThrow(RestClientException.class);
         boolean isExist = listingMiddleware.isListingExist("123", token);
         assertFalse(isExist);
