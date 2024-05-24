@@ -3,6 +3,7 @@ plugins {
     jacoco
     id("org.springframework.boot") version "3.2.4"
     id("io.spring.dependency-management") version "1.1.4"
+    id("org.sonarqube") version "4.4.1.3373"
 }
 
 group = "id.ac.ui.cs.advprog"
@@ -49,6 +50,14 @@ dependencies {
     testImplementation("io.github.bonigarcia:webdrivermanager:$webdrivermanagerVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion")
+}
+
+sonar {
+    properties {
+        property("sonar.projectKey", "AFK-3_ReviewDanRating")
+        property("sonar.organization", "afk-3")
+        property("sonar.host.url", "https://sonarcloud.io")
+    }
 }
 
 tasks.register<Test>("unitTest") {
