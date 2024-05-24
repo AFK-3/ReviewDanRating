@@ -12,22 +12,24 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @Component
 public class ListingMIddleware {
-    private String urlApiGateaway = "http://35.198.243.155/";
-    @Autowired
     RestTemplate restTemplate;
 
-    public Boolean isListingExist(String listingId, String token) {
+    @Autowired
+    public ListingMIddleware(RestTemplate restTemplate) {
+        this.restTemplate =restTemplate;
+    }
+
+    public boolean isListingExist(String listingId, String token) {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.add("Authorization", token);
             HttpEntity<String> httpEntity = new HttpEntity<>("body", headers);
-            String url = UriComponentsBuilder.fromHttpUrl(urlApiGateaway)
+            String url = UriComponentsBuilder.fromHttpUrl("http://35.198.243.155/")
                     .path("/listing/get-by-id/")
                     .path(listingId)
                     .build()
                     .toUriString();
-            System.out.println(url);
-            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, httpEntity, String.class);
+            restTemplate.exchange(url, HttpMethod.GET, httpEntity, String.class);
 
             return true;
         }

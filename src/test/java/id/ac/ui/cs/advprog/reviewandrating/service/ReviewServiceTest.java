@@ -36,7 +36,7 @@ public class ReviewServiceTest {
     ReviewId fakeId;
 
 
-    public void createReview() {
+    void createReview() {
         ReviewBuilder tempBuilder = new ReviewBuilder();
 
         String listingId = UUID.randomUUID().toString();
@@ -50,7 +50,7 @@ public class ReviewServiceTest {
             id.getListingId().equals(reviewId.getListingId())
         ))).thenReturn(Optional.of(review));
     }
-    public void createFakeReview() {
+    void createFakeReview() {
         String listingId = UUID.randomUUID().toString();
         fakeId = new ReviewId();
         fakeId.setUsername("EfEmEitch");
@@ -62,7 +62,7 @@ public class ReviewServiceTest {
         ))).thenReturn(Optional.empty());
     }
 
-    public void createIncompleteReview() {
+    void createIncompleteReview() {
         ReviewBuilder tempBuilder = new ReviewBuilder();
 
         String listingId = UUID.randomUUID().toString();
@@ -78,21 +78,21 @@ public class ReviewServiceTest {
     }
 
     @Test
-    public void testFindFound() {
+    void testFindFound() {
         createReview();
         Review foundReview = reviewService.find(reviewId.getListingId(), reviewId.getUsername());
         assertEquals(review, foundReview);
     }
 
     @Test
-    public void testFindNotFound() {
+    void testFindNotFound() {
         createFakeReview();
         Review foundReview = reviewService.find(fakeId.getListingId(), fakeId.getUsername());
         assertNull(foundReview);
     }
 
     @Test
-    public void testCreate() {
+    void testCreate() {
         createIncompleteReview();
         try {
             when(reviewRepo.save(any(Review.class))).thenReturn(any(Review.class));
@@ -110,7 +110,7 @@ public class ReviewServiceTest {
     }
 
     @Test
-    public void testCreateAlreadyExist() {
+    void testCreateAlreadyExist() {
         createReview();
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> reviewService.create(review.getListingId(),
                 review.getUsername(),
@@ -119,7 +119,7 @@ public class ReviewServiceTest {
     }
 
     @Test
-    public void testCreateNeverBuy() {
+    void testCreateNeverBuy() {
         createFakeReview();
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> reviewService.create(fakeId.getListingId(),
                 fakeId.getUsername(),
@@ -128,7 +128,7 @@ public class ReviewServiceTest {
     }
 
     @Test
-    public void testUpdateReview() {
+    void testUpdateReview() {
         createReview();
         ReviewBuilder tempBuilder = new ReviewBuilder();
         Review modifiedReview = reviewBuilder.reset().addDescription("Jelek").addRating(2).build();
@@ -149,7 +149,7 @@ public class ReviewServiceTest {
     }
 
     @Test
-    public void testUpdateButNeverReview() {
+    void testUpdateButNeverReview() {
         createIncompleteReview();
         IllegalArgumentException e1 = assertThrows(IllegalArgumentException.class, () ->
                 reviewService.update(incompleteReviewId.getListingId(), incompleteReviewId.getUsername(), new Review()));
@@ -168,7 +168,7 @@ public class ReviewServiceTest {
     }
 
     @Test
-    public void testDeleteReview() {
+    void testDeleteReview() {
         createReview();
         try {
             Review deletedReview = reviewService.delete(reviewId.getListingId(), reviewId.getUsername());
@@ -187,7 +187,7 @@ public class ReviewServiceTest {
     }
 
     @Test
-    public void testDeleteButNeverReview(){
+    void testDeleteButNeverReview(){
         createIncompleteReview();
         String incompleteListingId = incompleteReviewId.getListingId();
         String incompleteUsername = incompleteReviewId.getUsername();
@@ -208,7 +208,7 @@ public class ReviewServiceTest {
     }
 
     @Test
-    public void testAllowToReview() {
+    void testAllowToReview() {
         createFakeReview();
         reviewService.allowToReview(fakeId.getListingId(), fakeId.getUsername());
         verify(reviewRepo).save(ArgumentMatchers.argThat(id ->
@@ -220,7 +220,7 @@ public class ReviewServiceTest {
     }
 
     @Test
-    public void testALlowToReviewAlreadyAllowed() {
+    void testALlowToReviewAlreadyAllowed() {
         createIncompleteReview();
         reviewService.allowToReview(incompleteReviewId.getListingId(), incompleteReviewId.getUsername());
 

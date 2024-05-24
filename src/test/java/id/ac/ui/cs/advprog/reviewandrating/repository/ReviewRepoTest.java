@@ -31,7 +31,7 @@ public class ReviewRepoTest {
     private EntityManager entityManager;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         reviewBuilder = new ReviewBuilder();
         defaultListingId = UUID.randomUUID().toString();
 
@@ -52,7 +52,7 @@ public class ReviewRepoTest {
     }
 
     @Test
-    public void testFindById() {
+    void testFindById() {
         ReviewId reviewId = new ReviewId();
         reviewId.setUsername("Farrell");
         reviewId.setListingId(defaultListingId);
@@ -68,7 +68,7 @@ public class ReviewRepoTest {
     }
 
     @Test
-    public void testSave() {
+    void testSave() {
         String listingId = UUID.randomUUID().toString();
 
         Review review = reviewBuilder.addId(listingId, "Hanau")
@@ -93,7 +93,7 @@ public class ReviewRepoTest {
     }
 
     @Test
-    public void testFindByListingId() {
+    void testFindByListingId() {
         List<Review> reviewList = reviewRepository.findByListingId(defaultListingId).stream().toList();
         assertEquals(1, reviewList.size());
 
@@ -106,16 +106,16 @@ public class ReviewRepoTest {
     }
 
     @Test
-    public void testFindAverageRating() {
+    void testFindAverageRating() {
         Double rating = reviewRepository.findAverageRating(defaultListingId);
-        assertEquals(rating, 5.0);
+        assertEquals(5.0, rating);
     }
 
     @Test
-    public void testDeleteByListing() {
+    void testDeleteByListing() {
         reviewRepository.deleteByListingId(defaultListingId);
         List<Review> listReview = reviewRepository.findByListingId(defaultListingId);
-        assertEquals(listReview.size(), 0);
+        assertEquals(0, listReview.size());
 
         ReviewId reviewId = new ReviewId();
         reviewId.setListingId(defaultListingId);

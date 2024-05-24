@@ -12,12 +12,12 @@ public class ReviewTest {
     ReviewBuilder reviewBuilder;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         reviewBuilder = new ReviewBuilder().reset();
     }
 
     @Test
-    public void testReviewGetterSetter() {
+    void testReviewGetterSetter() {
         Review review = new Review();
         String listingId = UUID.randomUUID().toString();
 
@@ -33,7 +33,7 @@ public class ReviewTest {
     }
 
     @Test
-    public void testReviewIdGetterSetter() {
+    void testReviewIdGetterSetter() {
         ReviewId reviewId = new ReviewId();
         String listingId = UUID.randomUUID().toString();
 
@@ -45,7 +45,7 @@ public class ReviewTest {
     }
 
     @Test
-    public void testReviewBuilder() {
+    void testReviewBuilder() {
         String listingId = UUID.randomUUID().toString();
         Review review = reviewBuilder.addId(listingId, "Hanau")
                 .addRating(10)
@@ -59,7 +59,7 @@ public class ReviewTest {
     }
 
     @Test
-    public void testReviewBuilderWithListingId() {
+    void testReviewBuilderWithListingId() {
         ReviewId reviewId = new ReviewId();
         String listingId = UUID.randomUUID().toString();
         reviewId.setUsername("Hanau");
@@ -77,7 +77,7 @@ public class ReviewTest {
     }
 
     @Test
-    public void testBuilderModification() {
+    void testBuilderModification() {
         Review review = new Review();
         String listingId = UUID.randomUUID().toString();
         review.setListingId(listingId);
