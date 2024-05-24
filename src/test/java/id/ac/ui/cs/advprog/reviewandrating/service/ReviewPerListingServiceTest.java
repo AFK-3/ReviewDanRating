@@ -55,9 +55,9 @@ public class ReviewPerListingServiceTest {
 
         when(reviewRepo.findByListingId(listingId)).thenReturn(reviews);
         List<Review> reviewsFound = reviewPerListing.getReviews(listingId);
-        assertEquals(reviewsFound, reviews);
-        assertEquals(reviewsFound.getFirst(), review1);
-        assertEquals(reviewsFound.get(1), review2);
+        assertEquals(reviews, reviewsFound);
+        assertEquals(review1, reviewsFound.getFirst());
+        assertEquals(review2, reviewsFound.get(1));
     }
 
     @Test

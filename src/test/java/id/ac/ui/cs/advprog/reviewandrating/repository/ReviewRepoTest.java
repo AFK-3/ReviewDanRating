@@ -57,13 +57,13 @@ public class ReviewRepoTest {
         reviewId.setListingId(defaultListingId);
 
         List<Review> reviewList = reviewRepository.findById(reviewId).stream().toList();
-        assertEquals(reviewList.size(), 1);
+        assertEquals(1, reviewList.size());
 
         Review storedReview = reviewList.getFirst();
-        assertEquals(storedReview.getUsername(), "Farrell");
-        assertEquals(storedReview.getListingId(), defaultListingId);
-        assertEquals(storedReview.getRating(), 5);
-        assertEquals(storedReview.getDescription(), "Mid");
+        assertEquals("Farrell", storedReview.getUsername());
+        assertEquals(defaultListingId, storedReview.getListingId());
+        assertEquals(5, storedReview.getRating());
+        assertEquals("Mid", storedReview.getDescription());
     }
 
     @Test
@@ -81,26 +81,26 @@ public class ReviewRepoTest {
         reviewId.setUsername("Hanau");
 
         List<Review> reviewList = reviewRepository.findById(reviewId).stream().toList();
-        assertEquals(reviewList.size(), 1);
+        assertEquals(1, reviewList.size());
 
         Review storedReview = reviewList.getFirst();
-        assertEquals(storedReview.getUsername(), review.getUsername());
-        assertEquals(storedReview.getListingId(), review.getListingId());
-        assertEquals(storedReview.getRating(), review.getRating());
-        assertEquals(storedReview.getDescription(), review.getDescription());
+        assertEquals(review.getUsername(), storedReview.getUsername());
+        assertEquals(review.getListingId(), storedReview.getListingId());
+        assertEquals(review.getRating(), storedReview.getRating());
+        assertEquals(review.getDescription(), storedReview.getDescription());
 
     }
 
     @Test
     public void testFindByListingId() {
         List<Review> reviewList = reviewRepository.findByListingId(defaultListingId).stream().toList();
-        assertEquals(reviewList.size(), 1);
+        assertEquals(1, reviewList.size());
 
         Review storedReview = reviewList.getFirst();
-        assertEquals(storedReview.getUsername(), "Farrell");
-        assertEquals(storedReview.getListingId(), defaultListingId);
-        assertEquals(storedReview.getRating(), 5);
-        assertEquals(storedReview.getDescription(), "Mid");
+        assertEquals("Farrell", storedReview.getUsername());
+        assertEquals(defaultListingId, storedReview.getListingId());
+        assertEquals(5, storedReview.getRating());
+        assertEquals("Mid", storedReview.getDescription());
 
     }
 
@@ -124,10 +124,10 @@ public class ReviewRepoTest {
         entityManager.clear();
 
         Optional<Review> optReview = reviewRepository.findById(reviewId);
-        assertEquals(optReview.isPresent(), false);
+        assertFalse(optReview.isPresent());
 
         reviewId.setUsername("EfEmEitch");
         optReview = reviewRepository.findById(reviewId);
-        assertEquals(optReview.isPresent(), false);
+        assertFalse(optReview.isPresent());
     }
 }
