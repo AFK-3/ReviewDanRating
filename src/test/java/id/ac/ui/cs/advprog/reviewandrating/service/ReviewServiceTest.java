@@ -81,7 +81,7 @@ public class ReviewServiceTest {
     public void testFindFound() {
         createReview();
         Review foundReview = reviewService.find(reviewId.getListingId(), reviewId.getUsername());
-        assertEquals(foundReview, review);
+        assertEquals(review, foundReview);
     }
 
     @Test
@@ -99,10 +99,10 @@ public class ReviewServiceTest {
             Review createdReview = reviewService.create(incompleteReview.getListingId(), incompleteReview.getUsername(),
                     "Bagus", 8);
 
-            assertEquals(createdReview.getListingId(), incompleteReview.getListingId());
-            assertEquals(createdReview.getUsername(), incompleteReview.getUsername());
-            assertEquals(createdReview.getDescription(), "Bagus");
-            assertEquals(createdReview.getRating(), 8);
+            assertEquals(incompleteReview.getListingId(), createdReview.getListingId());
+            assertEquals(incompleteReview.getUsername(), createdReview.getUsername());
+            assertEquals("Bagus", createdReview.getDescription());
+            assertEquals(8, createdReview.getRating());
         }
         catch (Exception e) {
             fail();
@@ -115,7 +115,7 @@ public class ReviewServiceTest {
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> reviewService.create(review.getListingId(),
                 review.getUsername(),
                 review.getDescription(), review.getRating()));
-        assertEquals(e.getMessage(), String.format("%s already reviewed this listing", review.getUsername()));
+        assertEquals(String.format("%s already reviewed this listing", review.getUsername()), e.getMessage());
     }
 
     @Test
@@ -124,7 +124,7 @@ public class ReviewServiceTest {
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> reviewService.create(fakeId.getListingId(),
                 fakeId.getUsername(),
                 "Sangat Bagus", 10));
-        assertEquals(e.getMessage(), String.format("%s never buy this listing", fakeId.getUsername()));
+        assertEquals(String.format("%s never buy this listing", fakeId.getUsername()), e.getMessage());
     }
 
     @Test
@@ -137,11 +137,11 @@ public class ReviewServiceTest {
             Review updatedReview = reviewService.update(review.getListingId(), review.getUsername(),
                     modifiedReview);
 
-            assertEquals(modifiedReview, updatedReview);
-            assertEquals(modifiedReview.getListingId(), review.getListingId());
-            assertEquals(modifiedReview.getUsername(), review.getUsername());
-            assertEquals(modifiedReview.getDescription(), "Jelek");
-            assertEquals(modifiedReview.getRating(), 2);
+            assertEquals(updatedReview, modifiedReview);
+            assertEquals(review.getListingId(), modifiedReview.getListingId());
+            assertEquals(review.getUsername(), modifiedReview.getUsername());
+            assertEquals("Jelek", modifiedReview.getDescription());
+            assertEquals(2, modifiedReview.getRating());
         }
         catch (Exception e) {
             fail();
@@ -154,13 +154,13 @@ public class ReviewServiceTest {
         IllegalArgumentException e1 = assertThrows(IllegalArgumentException.class, () ->
                 reviewService.update(incompleteReviewId.getListingId(), incompleteReviewId.getUsername(), new Review()));
 
-        assertEquals(e1.getMessage(), String.format("%s didn't have review on this listing", incompleteReviewId.getUsername()));
+        assertEquals(String.format("%s didn't have review on this listing", incompleteReviewId.getUsername()), e1.getMessage());
 
         createFakeReview();
         IllegalArgumentException e2 = assertThrows(IllegalArgumentException.class, () ->
                 reviewService.update(fakeId.getListingId(), fakeId.getUsername(), new Review()));
 
-        assertEquals(e2.getMessage(), String.format("%s didn't have review on this listing", fakeId.getUsername()));
+        assertEquals(String.format("%s didn't have review on this listing", fakeId.getUsername()), e2.getMessage());
     }
 
     @Test
@@ -168,7 +168,7 @@ public class ReviewServiceTest {
         createReview();
         try {
             Review deletedReview = reviewService.delete(reviewId.getListingId(), reviewId.getUsername());
-            assertEquals(deletedReview, review);
+            assertEquals(review, deletedReview);
 
             verify(reviewRepo).save(ArgumentMatchers.argThat(id ->
                     id != null &&
@@ -188,13 +188,13 @@ public class ReviewServiceTest {
         IllegalArgumentException e1 = assertThrows(IllegalArgumentException.class, () ->
                 reviewService.delete(incompleteReviewId.getListingId(), incompleteReviewId.getUsername()));
 
-        assertEquals(e1.getMessage(), String.format("%s didn't have review on this listing", incompleteReviewId.getUsername()));
+        assertEquals(String.format("%s didn't have review on this listing", incompleteReviewId.getUsername()), e1.getMessage());
 
         createFakeReview();
         IllegalArgumentException e2 = assertThrows(IllegalArgumentException.class, () ->
                 reviewService.delete(fakeId.getListingId(), fakeId.getUsername()));
 
-        assertEquals(e2.getMessage(), String.format("%s didn't have review on this listing", fakeId.getUsername()));
+        assertEquals(String.format("%s didn't have review on this listing", fakeId.getUsername()), e2.getMessage());
     }
 
     @Test

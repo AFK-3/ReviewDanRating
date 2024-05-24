@@ -26,10 +26,10 @@ public class ReviewTest {
         review.setRating(10);
         review.setDescription("Sangat Bagus");
 
-        assertEquals(review.getUsername(), "Hanau");
-        assertEquals(review.getListingId(), listingId);
-        assertEquals(review.getRating(), 10);
-        assertEquals(review.getDescription(), "Sangat Bagus");
+        assertEquals("Hanau", review.getUsername());
+        assertEquals(listingId, review.getListingId());
+        assertEquals(10, review.getRating());
+        assertEquals("Sangat Bagus", review.getDescription());
     }
 
     @Test
@@ -40,8 +40,8 @@ public class ReviewTest {
         reviewId.setUsername("Hanau");
         reviewId.setListingId(listingId);
 
-        assertEquals(reviewId.getUsername(), "Hanau");
-        assertEquals(reviewId.getListingId(), listingId);
+        assertEquals("Hanau", reviewId.getUsername());
+        assertEquals(listingId, reviewId.getListingId());
     }
 
     @Test
@@ -52,10 +52,10 @@ public class ReviewTest {
                 .addDescription("Sangat Bagus")
                 .build();
 
-        assertEquals(review.getUsername(), "Hanau");
-        assertEquals(review.getListingId(), listingId);
-        assertEquals(review.getRating(), 10);
-        assertEquals(review.getDescription(), "Sangat Bagus");
+        assertEquals("Hanau", review.getUsername());
+        assertEquals(listingId, review.getListingId());
+        assertEquals(10, review.getRating());
+        assertEquals( "Sangat Bagus", review.getDescription());
     }
 
     @Test
@@ -70,10 +70,10 @@ public class ReviewTest {
                 .addDescription("Sangat Bagus")
                 .build();
 
-        assertEquals(review.getUsername(), "Hanau");
-        assertEquals(review.getListingId(), listingId);
-        assertEquals(review.getRating(), 10);
-        assertEquals(review.getDescription(), "Sangat Bagus");
+        assertEquals("Hanau", review.getUsername());
+        assertEquals(listingId, review.getListingId());
+        assertEquals(10, review.getRating());
+        assertEquals("Sangat Bagus", review.getDescription());
     }
 
     @Test
@@ -91,9 +91,9 @@ public class ReviewTest {
                 .addRating(5)
                 .addDescription("Mid");
 
-        assertEquals(review.getListingId(), listingId);
-        assertEquals(review.getUsername(), "Farrell");
-        assertEquals(review.getRating(), 5);
-        assertEquals(review.getDescription(), "Mid");
+        assertEquals(listingId, review.getListingId());
+        assertEquals("Farrell", review.getUsername());
+        assertEquals(5, review.getRating());
+        assertEquals("Mid", review.getDescription());
     }
 }
