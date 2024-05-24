@@ -7,6 +7,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @Component
 public class ListingMIddleware {
@@ -19,8 +20,12 @@ public class ListingMIddleware {
             HttpHeaders headers = new HttpHeaders();
             headers.add("Authorization", token);
             HttpEntity<String> httpEntity = new HttpEntity<>("body", headers);
-            ResponseEntity<String> response = restTemplate.exchange(String.format("%s/listing/get-by-id/%s",
-                    urlApiGateaway, listingId), HttpMethod.GET, httpEntity, String.class);
+            String url = UriComponentsBuilder.fromHttpUrl(urlApiGateaway)
+                    .path("/listing/get-by-id/")
+                    .path(listingId)
+                    .build()
+                    .toUriString();
+            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, httpEntity, String.class);
 
             return true;
         }
