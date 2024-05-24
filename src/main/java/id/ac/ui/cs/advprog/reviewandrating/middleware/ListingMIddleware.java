@@ -12,6 +12,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @Component
 public class ListingMIddleware {
+    private final String urlApiGateaway = "http://35.198.243.155/";
     RestTemplate restTemplate;
 
     @Autowired
@@ -24,7 +25,7 @@ public class ListingMIddleware {
             HttpHeaders headers = new HttpHeaders();
             headers.add("Authorization", token);
             HttpEntity<String> httpEntity = new HttpEntity<>("body", headers);
-            String url = UriComponentsBuilder.fromHttpUrl("http://35.198.243.155/")
+            String url = UriComponentsBuilder.fromHttpUrl(urlApiGateaway)
                     .path("/listing/get-by-id/")
                     .path(listingId)
                     .build()
