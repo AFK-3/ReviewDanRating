@@ -21,7 +21,7 @@ public class ReviewServiceImpl implements  ReviewService{
         this.reviewBuilder = reviewBuilder;
     }
 
-    public Review create(String listingId, String username, String description, int rating) throws Exception{
+    public Review create(String listingId, String username, String description, int rating) throws IllegalArgumentException{
         Review review = find(listingId, username);
 
         if (review == null) {
@@ -50,7 +50,7 @@ public class ReviewServiceImpl implements  ReviewService{
         return optReview.orElse(null);
     }
 
-    public Review update(String listingId, String username, Review modifiedReview) throws Exception {
+    public Review update(String listingId, String username, Review modifiedReview) throws IllegalArgumentException {
         Review review = find(listingId, username);
 
         if (review == null || review.getDescription() == null) {
@@ -62,7 +62,7 @@ public class ReviewServiceImpl implements  ReviewService{
         return modifiedReview;
     }
 
-    public Review delete(String listingId, String username) throws Exception{
+    public Review delete(String listingId, String username) throws IllegalArgumentException{
         Review review = find(listingId, username);
 
         if (review == null || review.getDescription() == null) {

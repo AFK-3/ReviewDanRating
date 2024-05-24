@@ -3,10 +3,10 @@ package id.ac.ui.cs.advprog.reviewandrating.model;
 import id.ac.ui.cs.advprog.reviewandrating.model.builder.ReviewBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.UUID;
-import static org.junit.jupiter.api.Assertions.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ReviewTest {
     ReviewBuilder reviewBuilder;

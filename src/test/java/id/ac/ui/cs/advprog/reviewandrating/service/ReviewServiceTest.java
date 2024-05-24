@@ -4,7 +4,6 @@ import id.ac.ui.cs.advprog.reviewandrating.model.Review;
 import id.ac.ui.cs.advprog.reviewandrating.model.ReviewId;
 import id.ac.ui.cs.advprog.reviewandrating.model.builder.ReviewBuilder;
 import id.ac.ui.cs.advprog.reviewandrating.repository.ReviewRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
@@ -13,10 +12,11 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.mockito.Mockito.*;
+import java.util.Optional;
+import java.util.UUID;
 
-import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class ReviewServiceTest {
@@ -157,8 +157,12 @@ public class ReviewServiceTest {
         assertEquals(String.format("%s didn't have review on this listing", incompleteReviewId.getUsername()), e1.getMessage());
 
         createFakeReview();
+        String fakeListingId = fakeId.getListingId();
+        String fakeUsername = fakeId.getUsername();
+        Review fakeNewReview = new Review();
         IllegalArgumentException e2 = assertThrows(IllegalArgumentException.class, () ->
-                reviewService.update(fakeId.getListingId(), fakeId.getUsername(), new Review()));
+                reviewService.update(fakeListingId, fakeUsername, fakeNewReview)
+        );
 
         assertEquals(String.format("%s didn't have review on this listing", fakeId.getUsername()), e2.getMessage());
     }
@@ -185,14 +189,20 @@ public class ReviewServiceTest {
     @Test
     public void testDeleteButNeverReview(){
         createIncompleteReview();
+        String incompleteListingId = incompleteReviewId.getListingId();
+        String incompleteUsername = incompleteReviewId.getUsername();
         IllegalArgumentException e1 = assertThrows(IllegalArgumentException.class, () ->
-                reviewService.delete(incompleteReviewId.getListingId(), incompleteReviewId.getUsername()));
+                reviewService.delete(incompleteListingId, incompleteUsername)
+        );
 
         assertEquals(String.format("%s didn't have review on this listing", incompleteReviewId.getUsername()), e1.getMessage());
 
         createFakeReview();
+        String fakeListingId = fakeId.getListingId();
+        String fakeUsername = fakeId.getUsername();
         IllegalArgumentException e2 = assertThrows(IllegalArgumentException.class, () ->
-                reviewService.delete(fakeId.getListingId(), fakeId.getUsername()));
+                reviewService.delete(fakeListingId, fakeUsername)
+        );
 
         assertEquals(String.format("%s didn't have review on this listing", fakeId.getUsername()), e2.getMessage());
     }
