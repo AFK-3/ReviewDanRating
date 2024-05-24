@@ -1,6 +1,7 @@
 package id.ac.ui.cs.advprog.reviewandrating.middleware;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -12,12 +13,13 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @Component
 public class ListingMIddleware {
-    private final String urlApiGateaway = "http://35.198.243.155/";
+    @Value("${url.api.gateway}")
+    private String urlApiGateaway;
     RestTemplate restTemplate;
 
     @Autowired
     public ListingMIddleware(RestTemplate restTemplate) {
-        this.restTemplate =restTemplate;
+        this.restTemplate = restTemplate;
     }
 
     public boolean isListingExist(String listingId, String token) {
