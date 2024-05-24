@@ -10,7 +10,6 @@ import org.springframework.http.*;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.Map;
@@ -19,17 +18,22 @@ import java.util.Map;
 @RestController
 @RequestMapping("/")
 public class ReviewController {
-    @Autowired
-    private ReviewService reviewService;
+    private final ReviewService reviewService;
 
-    @Autowired
-    private ReviewPerListingService reviewPerListingService;
+    private final ReviewPerListingService reviewPerListingService;
 
-    @Autowired
     AuthMiddleware authMiddleware;
 
-    @Autowired
     ListingMIddleware listingMIddleware;
+
+    @Autowired
+    public ReviewController(ReviewService reviewService, ReviewPerListingService reviewPerListingService,
+                            AuthMiddleware authMiddleware, ListingMIddleware listingMIddleware) {
+        this.reviewService = reviewService;
+        this.reviewPerListingService = reviewPerListingService;
+        this.authMiddleware = authMiddleware;
+        this.listingMIddleware = listingMIddleware;
+    }
 
     @GetMapping("/getReview/{listingId}")
     public ResponseEntity<Model> getReview(Model model, @PathVariable("listingId") String listingId,

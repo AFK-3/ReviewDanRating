@@ -5,20 +5,21 @@ import id.ac.ui.cs.advprog.reviewandrating.model.ReviewId;
 import id.ac.ui.cs.advprog.reviewandrating.model.builder.ReviewBuilder;
 import id.ac.ui.cs.advprog.reviewandrating.repository.ReviewRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 
 @Service
 public class ReviewServiceImpl implements  ReviewService{
-    @Autowired
-    private ReviewRepository reviewRepo;
+    private final ReviewRepository reviewRepo;
+
+    private final ReviewBuilder reviewBuilder;
 
     @Autowired
-    private ReviewBuilder reviewBuilder;
+    public ReviewServiceImpl(ReviewRepository reviewRepo, ReviewBuilder reviewBuilder) {
+        this.reviewRepo = reviewRepo;
+        this.reviewBuilder = reviewBuilder;
+    }
 
     public Review create(String listingId, String username, String description, int rating) throws Exception{
         Review review = find(listingId, username);
