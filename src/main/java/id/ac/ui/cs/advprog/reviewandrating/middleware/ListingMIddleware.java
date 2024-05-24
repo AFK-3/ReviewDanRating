@@ -25,6 +25,7 @@ public class ListingMIddleware {
                     .path(listingId)
                     .build()
                     .toUriString();
+            System.out.println(url);
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, httpEntity, String.class);
 
             return true;
