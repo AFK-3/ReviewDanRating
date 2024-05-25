@@ -17,7 +17,7 @@ import java.util.Map;
 
 
 @RestController
-@RequestMapping("/")
+@RequestMapping("/review")
 public class ReviewController {
     private final ReviewService reviewService;
 
