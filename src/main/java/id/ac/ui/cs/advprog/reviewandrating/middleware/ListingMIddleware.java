@@ -2,11 +2,9 @@ package id.ac.ui.cs.advprog.reviewandrating.middleware;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -36,8 +34,10 @@ public class ListingMIddleware {
 
             return true;
         }
-        catch (RestClientException e) {
-            return false;
+        catch (HttpClientErrorException e) {
+            if (e.getStatusCode() == HttpStatus.NOT_FOUND)
+                return false;
+            throw new RestClientException("UnAuthorized");
         }
     }
 }
