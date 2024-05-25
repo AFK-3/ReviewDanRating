@@ -66,29 +66,29 @@ public class ReviewControllerTest {
     void testInvalidListingAllEndpoint() throws Exception{
         when(listingMIddleware.isListingExist(invalidListing, validToken)).thenReturn(false);
 
-        mockMvc.perform(get(String.format("/getReview/%s", invalidListing))
+        mockMvc.perform(get(String.format("/review/getReview/%s", invalidListing))
                         .header("Authorization", validToken))
                 .andExpect(status().isNotFound());
 
-        mockMvc.perform(post(String.format("/createReview/%s", invalidListing))
+        mockMvc.perform(post(String.format("/review/createReview/%s", invalidListing))
                         .header("Authorization", validToken)
                         .contentType("application/json")
                         .content("{ \"description\": \"sangat bagus\", \"rating\": 10 }"))
                 .andExpect(status().isNotFound());
 
-        mockMvc.perform(post("/allowUserToReview")
+        mockMvc.perform(post("/review/allowUserToReview")
                         .header("Authorization", validToken)
                         .contentType("application/json")
                         .content("{ \"username\": \"hanau\", \"listingId\": \"45\" }"))
                         .andExpect(status().isNotFound());
 
-        mockMvc.perform(put(String.format("/updateReview/%s", invalidListing))
+        mockMvc.perform(put(String.format("/review/updateReview/%s", invalidListing))
                         .header("Authorization", validToken)
                         .contentType("application/json")
                         .content("{\"description\": \"bagus\", \"rating\": 5}"))
                         .andExpect(status().isNotFound());
 
-        mockMvc.perform(delete(String.format("/deleteReview/%s", invalidListing))
+        mockMvc.perform(delete(String.format("/review/deleteReview/%s", invalidListing))
                         .header("Authorization", validToken))
                         .andExpect(status().isNotFound());
     }
@@ -97,29 +97,29 @@ public class ReviewControllerTest {
     void testInvalidTokenAllEndpoint() throws Exception {
         when(listingMIddleware.isListingExist(validListing, invalidToken)).thenThrow(RestClientException.class);
 
-        mockMvc.perform(get(String.format("/getReview/%s", validListing))
+        mockMvc.perform(get(String.format("/review/getReview/%s", validListing))
                         .header("Authorization", invalidToken))
                 .andExpect(status().isUnauthorized());
 
-        mockMvc.perform(post(String.format("/createReview/%s", validListing))
+        mockMvc.perform(post(String.format("/review/createReview/%s", validListing))
                         .header("Authorization", invalidToken)
                         .contentType("application/json")
                         .content("{ \"description\": \"sangat bagus\", \"rating\": 10 }"))
                 .andExpect(status().isUnauthorized());
 
-        mockMvc.perform(post("/allowUserToReview")
+        mockMvc.perform(post("/review/allowUserToReview")
                         .header("Authorization", invalidToken)
                         .contentType("application/json")
                         .content("{ \"username\": \"hanau\", \"listingId\": \"123\" }"))
                 .andExpect(status().isUnauthorized());
 
-        mockMvc.perform(put(String.format("/updateReview/%s", validListing))
+        mockMvc.perform(put(String.format("/review/updateReview/%s", validListing))
                         .header("Authorization", invalidToken)
                         .contentType("application/json")
                         .content("{\"description\": \"bagus\", \"rating\": 5}"))
                 .andExpect(status().isUnauthorized());
 
-        mockMvc.perform(delete(String.format("/deleteReview/%s", validListing))
+        mockMvc.perform(delete(String.format("/review/deleteReview/%s", validListing))
                         .header("Authorization", invalidToken))
                 .andExpect(status().isUnauthorized());
     }
@@ -129,7 +129,7 @@ public class ReviewControllerTest {
         when(listingMIddleware.isListingExist(validListing, validToken)).thenReturn(true);
         when(authMiddleware.getRoleFromToken(validToken)).thenReturn("SELLER");
 
-        mockMvc.perform(post("/allowUserToReview")
+        mockMvc.perform(post("/review/allowUserToReview")
                         .header("Authorization", validToken)
                         .contentType("application/json")
                         .content("{ \"username\": \"hanau\", \"listingId\": \"123\" }"))
@@ -142,7 +142,7 @@ public class ReviewControllerTest {
         when(listingMIddleware.isListingExist(validListing, validToken)).thenReturn(true);
         when(authMiddleware.getRoleFromToken(validToken)).thenReturn("STAFF");
 
-        mockMvc.perform(post("/allowUserToReview")
+        mockMvc.perform(post("/review/allowUserToReview")
                         .header("Authorization", validToken)
                         .contentType("application/json")
                         .content("{ \"username\": \"hanau\", \"listingId\": \"123\" }"))
@@ -162,7 +162,7 @@ public class ReviewControllerTest {
         when(reviewPerListingService.averageRating(validListing)).thenReturn(10.0);
         when(reviewPerListingService.getReviews(validListing)).thenReturn(reviews);
 
-        mockMvc.perform(get(String.format("/getReview/%s", validListing))
+        mockMvc.perform(get(String.format("/review/getReview/%s", validListing))
                         .header("Authorization", validToken))
                 .andExpect(status().isOk())
                 .andExpect(content().string("{\"average_rating\":10.0,\"reviews\":[{\"username\":\"hanau\",\"listingId\":\"123\",\"description\":\"Bagus\",\"rating\":10}]}"));
@@ -177,7 +177,7 @@ public class ReviewControllerTest {
         when(reviewService.create(review.getListingId(), review.getUsername(), review.getDescription(),
                 review.getRating())).thenReturn(review);
 
-        mockMvc.perform(post(String.format("/createReview/%s", validListing))
+        mockMvc.perform(post(String.format("/review/createReview/%s", validListing))
                         .header("Authorization", validToken)
                         .contentType("application/json")
                         .content("{ \"description\": \"Bagus\", \"rating\": 10 }"))
@@ -191,7 +191,7 @@ public class ReviewControllerTest {
         when(authMiddleware.getUsernameFromToken(validToken)).thenReturn("hanau");
         when(reviewService.create(validListing, "hanau", "Bagus", 10)).thenThrow(IllegalArgumentException.class);
 
-        mockMvc.perform(post(String.format("/createReview/%s", validListing))
+        mockMvc.perform(post(String.format("/review/createReview/%s", validListing))
                         .header("Authorization", validToken)
                         .contentType("application/json")
                         .content("{ \"description\": \"Bagus\", \"rating\": 10 }"))
@@ -210,7 +210,7 @@ public class ReviewControllerTest {
                 review.getDescription().equals(modifiedReview.getDescription()) &&
                 review.getRating() == modifiedReview.getRating()))).thenReturn(modifiedReview);
 
-        mockMvc.perform(put(String.format("/updateReview/%s", validListing))
+        mockMvc.perform(put(String.format("/review/updateReview/%s", validListing))
                         .header("Authorization", validToken)
                         .contentType("application/json")
                         .content("{\"description\": \"bagus\", \"rating\": 10}"))
@@ -224,7 +224,7 @@ public class ReviewControllerTest {
         when(authMiddleware.getUsernameFromToken(validToken)).thenReturn("hanau");
         when(reviewService.update(eq(validListing), eq("hanau"), any())).thenThrow(IllegalArgumentException.class);
 
-        mockMvc.perform(put(String.format("/updateReview/%s", validListing))
+        mockMvc.perform(put(String.format("/review/updateReview/%s", validListing))
                         .header("Authorization", validToken)
                         .contentType("application/json")
                         .content("{\"description\": \"bagus\", \"rating\": 10}"))
@@ -240,7 +240,7 @@ public class ReviewControllerTest {
         when(authMiddleware.getUsernameFromToken(validToken)).thenReturn("hanau");
         when(reviewService.delete(validListing, "hanau")).thenReturn(review);
 
-        mockMvc.perform(delete(String.format("/deleteReview/%s", validListing))
+        mockMvc.perform(delete(String.format("/review/deleteReview/%s", validListing))
                         .header("Authorization", validToken)
                         .contentType("application/json"))
                 .andExpect(status().isOk())
@@ -253,7 +253,7 @@ public class ReviewControllerTest {
         when(authMiddleware.getUsernameFromToken(validToken)).thenReturn("hanau");
         when(reviewService.delete(validListing, "hanau")).thenThrow(IllegalArgumentException.class);
 
-        mockMvc.perform(delete(String.format("/deleteReview/%s", validListing))
+        mockMvc.perform(delete(String.format("/review/deleteReview/%s", validListing))
                         .header("Authorization", validToken))
                 .andExpect(status().isBadRequest());
     }
