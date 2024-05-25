@@ -39,12 +39,13 @@ public class ReviewController {
     @GetMapping("/getReview/{listingId}")
     public ResponseEntity<Model> getReview(Model model, @PathVariable("listingId") String listingId,
                                            @RequestHeader("Authorization") String token) {
-        if (!listingMIddleware.isListingExist(listingId, token)) {
-            reviewPerListingService.deleteReviewInListing(listingId);
-            return ResponseEntity.notFound().build();
-        }
 
         try {
+            if (!listingMIddleware.isListingExist(listingId, token)) {
+                reviewPerListingService.deleteReviewInListing(listingId);
+                return ResponseEntity.notFound().build();
+            }
+
             Double avg = reviewPerListingService.averageRating(listingId);
             model.addAttribute("average_rating", avg);
 
@@ -56,9 +57,6 @@ public class ReviewController {
         catch (RestClientException err1) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        catch (IllegalArgumentException err2) {
-            return ResponseEntity.badRequest().build();
-        }
     }
 
     @PostMapping("/createReview/{listingId}")
@@ -66,12 +64,13 @@ public class ReviewController {
                                                @RequestHeader("Authorization") String token,
                                                @RequestBody Review review) {
 
-        if (!listingMIddleware.isListingExist(listingId, token)) {
-            reviewPerListingService.deleteReviewInListing(listingId);
-            return ResponseEntity.notFound().build();
-        }
 
         try {
+            if (!listingMIddleware.isListingExist(listingId, token)) {
+                reviewPerListingService.deleteReviewInListing(listingId);
+                return ResponseEntity.notFound().build();
+            }
+
             String username = authMiddleware.getUsernameFromToken(token);
             review = reviewService.create(listingId, username,
                     review.getDescription(), review.getRating());
@@ -90,14 +89,15 @@ public class ReviewController {
     public ResponseEntity<String> allowUserToReview(@RequestHeader("Authorization") String token,
                                                     @RequestBody Map<String, String> map) {
 
-        String listingId = map.get("listingId");
-        String username = map.get("username");
-        if (!listingMIddleware.isListingExist(listingId, token)) {
-            reviewPerListingService.deleteReviewInListing(listingId);
-            return ResponseEntity.notFound().build();
-        }
 
         try {
+            String listingId = map.get("listingId");
+            String username = map.get("username");
+            if (!listingMIddleware.isListingExist(listingId, token)) {
+                reviewPerListingService.deleteReviewInListing(listingId);
+                return ResponseEntity.notFound().build();
+            }
+
             String role = authMiddleware.getRoleFromToken(token);
             if (!role.equals("STAFF")) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Only STAFF can allow user to review");
@@ -111,21 +111,19 @@ public class ReviewController {
         catch (RestClientException err1) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        catch (IllegalArgumentException err2) {
-            return ResponseEntity.badRequest().build();
-        }
     }
 
     @PutMapping("/updateReview/{listingId}")
     public ResponseEntity<Review> updateReview(@PathVariable("listingId") String listingId,
                                                @RequestHeader("Authorization") String token,
                                                @RequestBody Review modifiedReview) {
-        if (!listingMIddleware.isListingExist(listingId, token)) {
-            reviewPerListingService.deleteReviewInListing(listingId);
-            return ResponseEntity.notFound().build();
-        }
 
         try {
+            if (!listingMIddleware.isListingExist(listingId, token)) {
+                reviewPerListingService.deleteReviewInListing(listingId);
+                return ResponseEntity.notFound().build();
+            }
+
             String username = authMiddleware.getUsernameFromToken(token);
             Review newReview = reviewService.update(listingId, username, modifiedReview);
 
@@ -142,12 +140,13 @@ public class ReviewController {
     @DeleteMapping("/deleteReview/{listingId}")
     public ResponseEntity<Review> deleteReview (@PathVariable("listingId") String listingId,
                                                 @RequestHeader("Authorization") String token) {
-        if (!listingMIddleware  .isListingExist(listingId, token)) {
-            reviewPerListingService.deleteReviewInListing(listingId);
-            return ResponseEntity.notFound().build();
-        }
 
         try {
+            if (!listingMIddleware  .isListingExist(listingId, token)) {
+                reviewPerListingService.deleteReviewInListing(listingId);
+                return ResponseEntity.notFound().build();
+            }
+
             String username = authMiddleware.getUsernameFromToken(token);
             Review deletedReview = reviewService.delete(listingId, username);
 
